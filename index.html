@@ -38,7 +38,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      padding: 8px;
+      padding: 20px 10px 8px 10px; /* БОЛЬШЕ ОТСТУП СВЕРХУ */
       font-size: 14px;
       display: flex;
       justify-content: space-between;
@@ -125,7 +125,7 @@ const line2El = document.getElementById("line2");
 // ---------- игра ----------
 let score = 0;
 let lives = 3;
-const WIN_SCORE = 100; // 
+const WIN_SCORE = 10; // пока тестовая победа на 10 снежинок
 
 let gameOver = false;
 let lastTime = 0;
@@ -161,8 +161,19 @@ let musicStarted = false;
 function startMusic() {
   if (musicStarted) return;
   musicStarted = true;
-  music.play().catch(()=>{});
+  music.muted = false;
+  music.play().catch(err => {
+    console.log("Music play blocked:", err);
+  });
 }
+
+// Дополнительный страховочный запуск для мобильных:
+// первый тап или клик по документу — попытка включить музыку.
+function ensureMusicOnUserGesture() {
+  startMusic();
+}
+document.addEventListener("click", ensureMusicOnUserGesture, { once: true });
+document.addEventListener("touchstart", ensureMusicOnUserGesture, { once: true });
 
 // ---------- подсказка ----------
 let hintTimeout = null;
@@ -171,7 +182,7 @@ function showCenterHint() {
   if (hintTimeout) clearTimeout(hintTimeout);
   centerEl.style.opacity = 1;
   centerEl.textContent =
-    "Лови хлопья!Нужно 100 снежинок. \nНе дай им улететь мимо.\nДвигай ← → или води пальцем.";
+    "Лови белые хлопья!\nНе дай им улететь мимо.\nДвигай ← → или води пальцем.";
 
   hintTimeout = setTimeout(() => {
     centerEl.style.opacity = 0;
@@ -203,7 +214,7 @@ function spawnFlake() {
     y: H + 20,
     r: 12,
     // скорость 70–180
-    speed: Math.random() * 140 + 100
+    speed: Math.random() * 110 + 70
   });
 }
 
@@ -372,7 +383,7 @@ function update(dt) {
   spawnTimer += dt;
   if (spawnTimer >= spawnInterval) {
     spawnTimer = 0;
-    if (flakes.length < 20) spawnFlake(); // максимум 20
+    if (flakes.length < 15) spawnFlake(); // максимум 15
     if (spawnInterval > 0.55) spawnInterval -= 0.005;
   }
 
