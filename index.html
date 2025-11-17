@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Федук — Хлопья летят наверх</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, sans-serif;
+      color: #fff;
+    }
+
+    #wrap { position: relative; }
+
+    canvas {
+      display: block;
+      background: #000;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,.7);
+      transition: filter .3s ease, transform .3s ease;
+      touch-action: none;
+    }
+
+    #game.blurred {
+      filter: blur(6px) brightness(.6);
+      transform: scale(1.02);
+    }
+
+    #hud {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      padding: 8px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      text-shadow: 0 0 6px #000;
+    }
+
+    #center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: pre-line;
+      text-align: center;
+      pointer-events: none;
+      text-shadow: 0 0 8px #000;
+      opacity: .9;
+      font-size: 13px;
+    }
+
+    #overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    #overlay.show { display: flex; animation:fadeUp .35s ease; }
+
+    #card { max-width: 90%; padding: 15px; }
+
+    #title { font-size: 24px; margin-bottom: 8px; font-weight: 600; }
+    #line1 { font-size: 16px; margin: 4px 0; }
+    #line2 { font-size: 14px; margin: 4px 0 12px; }
+
+    #hint { font-size: 12px; opacity: .7; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(14px); }
+      to { opacity:1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+<div id="wrap">
+  <canvas id="game" width="360" height="640"></canvas>
+
+  <div id="hud">
+    <div id="score">Счёт: 0</div>
+    <div id="lives">Жизни: 3</div>
+  </div>
+
+  <div id="center"></div>
+
+  <div id="overlay">
+    <div id="card">
+      <div id="title"></div>
+      <div id="line1"></div>
+      <div id="line2"></div>
+      <div id="hint">Нажми, чтобы сыграть ещё раз</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------------------------------------
+// CANVAS НАСТРОЙКА
+// ---------------------------------------
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const W = canvas.width;
+const H = canvas.height;
+
+const scoreEl = document.getElementById("score");
+const livesEl = d
