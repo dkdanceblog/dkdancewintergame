@@ -268,7 +268,7 @@ const itemsImg = img("assets/items.png");
 const ribbonImg = img("assets/ribbon.png");
 const winImg = img("assets/windows.png");
 // Параллакс: если есть слои фона — используем их, иначе один общий фон
-const LAYER = { sky: img("assets/layer_sky.png"), far: img("assets/layer_far.png"), near: img("assets/layer_near.png") };
+const LAYER = { sky: img("assets/layer_sky.jpg"), far: img("assets/layer_far.png"), near: img("assets/layer_near.png") };
 const useLayers = () => loaded(LAYER.sky) && loaded(LAYER.far) && loaded(LAYER.near);
 // маска светящихся окон из любой картинки (тёплые пиксели)
 function windowMask(im) {
@@ -720,7 +720,11 @@ function drawBG(pulse, now) {
   const prog = state === "menu" ? 0 : clamp(now / SONG_END, 0, 1);
   const dawn = state === "over" && !failed ? 1 : smooth(0.8, 1.0, prog);
   // небо
-  if (layered) drawLayer(LAYER.sky, 4, false);
+  if (layered) {   // небо чуть ниже, чтобы луна не пряталась под счётом
+    ctx.fillStyle = "#02163b"; ctx.fillRect(0, 0, W, H);
+    const k = 1.08, w = W * k, h = H * k;
+    ctx.drawImage(LAYER.sky, (W - w) / 2 - parX * 4, (H - h) / 2 + 48, w, h);
+  }
   else if (loaded(bgImg)) drawLayer(bgImg, 7, true);
   else { ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, H); }
   if (dawn > 0) {
