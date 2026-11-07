@@ -511,7 +511,6 @@ function judgeNote(f, now) {
     burst(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#bff4ff" : "#dff3ff", perfect ? 14 : 7, perfect ? 190 : 130);
     judge = { text: perfect ? "ИДЕАЛЬНО" : "ХОРОШО", color: perfect ? "#7ff0ff" : "#ffffff", t: 0 };
     floatText(f.x, CATCH_Y - 20, "+" + pts, f.gold ? "#ffd34d" : "#fff", 8);
-    setEmo(perfect ? "perfect" : "catch", 0.22);
     if (combo === 25 || combo === 50 || combo === 100) flashText = { text: "КОМБО " + combo + "!", t: 0 };
     if (f.holdEnd) { holding = f; f.state = "hold"; sustainOn(f.midi); flashText = flashText || null; }
     else f.state = "gone";
@@ -753,7 +752,7 @@ function drawPlayer(pulse) {
   const single = skin().frames.length === 1;
   const bobY = Math.sin(b * Math.PI * (single ? 1 : 0.5)) * (single ? 4 : 2);
   const cx = pcx() + Math.sin(time * 1.7) * 1.2, cy = player.y + player.h / 2 + bobY;
-  const s = 1 + catchPulse * 0.06 + pulse * 0.015;
+  const s = 1 + catchPulse * 0.08 + pulse * 0.015;
   // ореол при комбо 30+ и в Снегопаде
   if (combo >= 30 || snowfall) {
     const k = combo >= 30 ? 1 : 0.6, r = 70 + Math.sin(time * 4) * 6;
