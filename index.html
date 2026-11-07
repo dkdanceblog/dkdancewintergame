@@ -129,6 +129,11 @@
         <button class="b" id="playBtn" disabled>ЗАГРУЗКА…</button>
         <button class="b alt" id="skinsBtn">СКИНЫ</button>
         <button class="b alt" id="muteBtn1">ЗВУК: ВКЛ</button>
+        <!-- ВРЕМЕННО: просмотр финальной заставки -->
+        <div class="row" style="width:72%">
+          <button class="b alt" id="demoEnd5" style="min-width:0;flex:1;border:1px dashed #ffd34d">ФИНАЛ ЧЕРЕЗ 5 СЕК</button>
+          <button class="b alt" id="demoEnd0" style="min-width:0;flex:1;border:1px dashed #ffd34d">СРАЗУ ФИНАЛ</button>
+        </div>
       </div>
       <div class="small">в центр снежинки — «идеально»<br>← → / мышь / палец</div>
     </div>
@@ -340,14 +345,15 @@ fetch("assets/music.mp3").then(r => r.arrayBuffer())
   .catch(() => {})
   .then(() => { $("playBtn").disabled = false; $("playBtn").textContent = "ИГРАТЬ"; });
 
-function startSong() {
+function startSong(offset = 0) {
   if (songSrc) { try { songSrc.stop(); } catch (e) {} songSrc = null; }
-  songStart = actx.currentTime + 0.15;
+  const at = actx.currentTime + 0.15;
+  songStart = at - offset;
   if (!songBuf) return;
   songSrc = actx.createBufferSource();
   songSrc.buffer = songBuf;
   songSrc.connect(musicGain);
-  songSrc.start(songStart);
+  songSrc.start(at, offset);
 }
 function stopSong() { if (songSrc) { try { songSrc.stop(); } catch (e) {} songSrc = null; } }
 const songNow = () => actx.currentTime - songStart;
@@ -1018,7 +1024,9 @@ function buildSkins() {
   }
 }
 
-function startGame() {
+let demo = false;
+function startGame(offset = 0) {
+  demo = offset > 0;
   actx.resume();
   score = 0; hp = MAX_HP; combo = 0; bestCombo = 0; nPerfect = 0; nGood = 0; nMiss = 0; holdScore = 0;
   chartIdx = 0; plan = []; lastPlanned = null; failed = false;
@@ -1026,7 +1034,8 @@ function startGame() {
   fireworks.length = 0; outro = null; player.tilt = 0; musicGain.gain.cancelScheduledValues(actx.currentTime); musicGain.gain.value = 0.32;
   magnetT = 0; emo = null; holding = null; snowfall = false; judge = null; sustainOff();
   player.x = W / 2 - player.w / 2;
-  startSong();
+  startSong(offset);
+  if (offset > 0) { chartIdx = NOTE_T.findIndex(t => t > offset + 0.4); if (chartIdx < 0) chartIdx = NOTE_T.length; }
   state = "play";
   flashText = { text: "ПОЕХАЛИ!", t: 0 };
   showScreen(null);
@@ -1138,7 +1147,7 @@ function finish(win) {
   const badges = [];
   if (win) {
     const key = "best_" + levelKey, prev = store.get(key, null);
-    if (!prev || score > prev.score) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
+    if (!demo && (!prev || score > prev.score)) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
   } else {
     sfx.lose();
     stopSong();
@@ -1223,9 +1232,12 @@ function saveCard() {
 
 // кнопки
 const tap = (id, fn) => $(id).addEventListener("click", e => { e.stopPropagation(); fn(); });
-tap("playBtn", startGame);
-tap("againBtn", startGame);
-tap("restartBtn", startGame);
+tap("playBtn", () => startGame());
+// ВРЕМЕННО: кнопки просмотра финала
+tap("demoEnd5", () => startGame(Math.max(0, SONG_END - 5)));
+tap("demoEnd0", () => { startGame(Math.max(0, SONG_END - 1)); setTimeout(() => finish(true), 200); });
+tap("againBtn", () => startGame());
+tap("restartBtn", () => startGame());
 tap("resumeBtn", resumeGame);
 tap("pauseBtn", pauseGame);
 tap("menuBtn1", toMenu);
