@@ -108,6 +108,22 @@
     .skin .cond { opacity: .7; font-size: calc(var(--u) * 5px); }
     #cardImg { width: 70%; border-radius: calc(var(--u) * 6px); box-shadow: 0 0 20px rgba(0,0,0,.6); }
 
+    /* логотип ДК ДАНС */
+    a.dk { display: inline-flex; flex-direction: column; align-items: center; text-decoration: none; margin-bottom: calc(var(--u) * 6px); -webkit-tap-highlight-color: transparent; }
+    a.dk img {
+      width: calc(var(--u) * 78px); height: auto; display: block;
+      filter: drop-shadow(0 0 calc(var(--u) * 8px) rgba(253,190,160,.55));
+      animation: dkFloat 3.2s ease-in-out infinite;
+      transition: transform .2s ease, filter .2s ease;
+    }
+    a.dk:hover img, a.dk:active img { transform: scale(1.08) rotate(-4deg); filter: drop-shadow(0 0 calc(var(--u) * 14px) rgba(255,200,170,.9)); }
+    a.dk span {
+      margin-top: calc(var(--u) * 5px); font-size: calc(var(--u) * 6px); letter-spacing: .12em; color: #fdd6c4;
+      padding: calc(var(--u) * 4px) calc(var(--u) * 7px); border: 1px solid rgba(253,214,196,.35); border-radius: 999px;
+      background: rgba(253,214,196,.08);
+    }
+    a.dk span b { font-weight: normal; color: #ffb79a; }
+    @keyframes dkFloat { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(calc(var(--u) * -4px)) rotate(2deg); } }
     @keyframes fadeUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: none; } }
     @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
     @keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -121,6 +137,10 @@
   <!-- МЕНЮ -->
   <div class="screen show" id="menu">
     <div class="card">
+      <a class="dk" href="https://t.me/dkdanceblog" target="_blank" rel="noopener" aria-label="ДК ДАНС в Telegram">
+        <img src="assets/logo_dk.png" alt="ДК ДАНС">
+        <span>ДК ДАНС <b>↗ TELEGRAM</b></span>
+      </a>
       <h1>ХЛОПЬЯ<br>ЛЕТЯТ<br>НАВЕРХ</h1>
       <p>Лови хлопья в такт песни.<br>Пройди её до конца на S!</p>
       <div class="legend" id="legend"></div>
