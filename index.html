@@ -836,9 +836,7 @@ function drawItems(now) {
 }
 
 function fedukFrame() {
-  if (state === "outro" && !failed) return skinId === "base" ? "victory" : skin().frames[Math.floor(beats() * 4 + 40) % skin().frames.length];
-  if (state === "outro" && failed) return skinId === "base" ? "hurt" : skin().frames[0];
-  if (state === "over" && !failed) return skinId === "base" ? "victory" : skin().frames[0];
+  if (state === "outro" || state === "over") { const fr = skin().frames; return fr[Math.floor(time * 9) % fr.length]; }
   if (emo) return emo;
   const fr = skin().frames;
   if (fr.length === 1) return fr[0];
@@ -1067,15 +1065,17 @@ function firework(x, y) {
   rings.push({ x, y, t: 0, life: 0.4, r0: 4, r1: 30, color: col, w: 2 });
   pop(0.18 + Math.random() * 0.1);
 }
-function playHook() {                   // мелодия припева колокольчиками
-  const a = 41.5, b = 48.4, t0 = actx.currentTime + 0.5;
-  for (let i = 0; i < NOTE_T.length; i++) if (NOTE_T[i] >= a && NOTE_T[i] < b) bell(CHART_P[i] + 12, t0 + (NOTE_T[i] - a), 0.16);
-}
 function startOutro(win) {
   outro = { t: 0, win, dur: win ? 7.2 : 3.4, fw: 0.9 };
   for (const f of items) f.state = f.state === "fly" ? "dodged" : f.state;
   items.length = 0; judge = null; flashText = null; emo = null;
-  if (win) { playHook(); musicGain.gain.setTargetAtTime(0.12, actx.currentTime, 0.6); }
+  if (win) {
+    // под салют — припев самой песни с плавным нарастанием
+    startSong(CHORUS[0][0]);
+    musicGain.gain.cancelScheduledValues(actx.currentTime);
+    musicGain.gain.setValueAtTime(0.0001, actx.currentTime);
+    musicGain.gain.exponentialRampToValueAtTime(0.32, actx.currentTime + 1.2);
+  }
 }
 function updateOutro(dt) {
   const o = outro; o.t += dt;
@@ -1192,7 +1192,7 @@ async function makeCard() {
   title("ХЛОПЬЯ", 170, 72, "#eaf6ff"); title("ЛЕТЯТ НАВЕРХ", 270, 64, "#eaf6ff");
   // Федук
   g.save(); g.globalAlpha = 0.9; g.drawImage(GLOW.white, 540 - 330, 760 - 330, 660, 660); g.restore();
-  drawFrame(g, result.win ? (skinId === "base" ? "victory" : skin().frames[0]) : (skinId === "base" ? "hurt" : skin().frames[0]), 540, 760, 640);
+  drawFrame(g, skin().frames[0], 540, 760, 640);
   // оценка
   const gr = result.win ? result.grade : Math.round(result.progress * 100) + "%";
   const col = result.win ? GRADE_COLOR[result.grade] : "#ff8fa3";
