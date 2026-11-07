@@ -253,7 +253,10 @@ const SKINS = [
   { id: "scarf",  name: "ШАРФ",       cond: "оценка A или выше",         frames: ["scarf0", "scarf1", "scarf2", "scarf3"] },
   { id: "lights", name: "ГИРЛЯНДА",   cond: "комбо 50",                  frames: ["lights"] },
   { id: "white",  name: "БЕЛАЯ КУРТКА", cond: "пройди на хардкоре",      frames: ["white0", "white1", "white2", "white3"] },
-  { id: "gold",   name: "ЗОЛОТОЙ",    cond: "S на нормальном или хардкоре", frames: ["gold"] }
+  { id: "gold",   name: "ЗОЛОТОЙ",    cond: "S на нормальном или хардкоре", frames: ["gold"] },
+  { id: "mask",   name: "КОТ",        cond: "сыграй 3 раза",             frames: ["mask0", "mask1", "mask2", "mask3"] },
+  { id: "sailor", name: "МОРЯК",      cond: "пройди песню 3 раза",       frames: ["sailor0", "sailor1", "sailor2", "sailor3"] },
+  { id: "jet",    name: "РОЗОВОЕ ВИНО", cond: "150 000 очков за игру",   frames: ["jet0", "jet1", "jet2", "jet3"] }
 ];
 let unlocked = new Set(store.get("unlocked", ["base"]));
 unlocked.add("base");
@@ -270,9 +273,26 @@ const atlas = img("assets/feduk_atlas.png");
 const itemsImg = img("assets/items.png");
 const ribbonImg = img("assets/ribbon.png");
 const winImg = img("assets/windows.png");
+// Параллакс: если есть слои фона — используем их, иначе один общий фон
+const LAYER = { sky: img("assets/layer_sky.png"), far: img("assets/layer_far.png"), near: img("assets/layer_near.png") };
+const useLayers = () => loaded(LAYER.sky) && loaded(LAYER.far) && loaded(LAYER.near);
+// маска светящихся окон из любой картинки (тёплые пиксели)
+function windowMask(im) {
+  const c = document.createElement("canvas"); c.width = im.naturalWidth; c.height = im.naturalHeight;
+  const g = c.getContext("2d"); g.drawImage(im, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height), a = d.data;
+  for (let i = 0; i < a.length; i += 4) {
+    const r = a[i], gg = a[i + 1], b = a[i + 2];
+    if (a[i + 3] > 0 && r > 120 && r - b > 50 && gg > 50) { a[i] = 255; a[i + 1] = Math.min(255, gg + 60); a[i + 2] = Math.min(255, b + 40); a[i + 3] = 255; }
+    else a[i + 3] = 0;
+  }
+  g.putImageData(d, 0, 0); return c;
+}
+const WMASK = {};
+LAYER.far.addEventListener("load", () => { try { WMASK.far = windowMask(LAYER.far); } catch (e) {} });
+LAYER.near.addEventListener("load", () => { try { WMASK.near = windowMask(LAYER.near); } catch (e) {} });
 const loaded = i => i.complete && i.naturalWidth > 0;
-const ATLAS = { cw: 211, ch: 297, cols: 6, idx: { fly0: 0, fly1: 1, fly2: 2, fly3: 3, catch: 4, perfect: 5, hurt: 6, victory: 7,
-  hat0: 8, hat1: 9, hat2: 10, hat3: 11, scarf0: 12, scarf1: 13, scarf2: 14, scarf3: 15, white0: 16, white1: 17, white2: 18, white3: 19, gold: 20, lights: 21 } };
+const ATLAS = { cw: 211, ch: 297, cols: 6, idx: {fly0:  0,  fly1:  1,  fly2:  2,  fly3:  3,  catch:  4,  perfect:  5,  hurt:  6,  victory:  7,  hat0:  8,  hat1:  9,  hat2:  10,  hat3:  11,  scarf0:  12,  scarf1:  13,  scarf2:  14,  scarf3:  15,  white0:  16,  white1:  17,  white2:  18,  white3:  19,  gold:  20,  lights:  21,  mask0:  22,  mask1:  23,  mask2:  24,  mask3:  25,  sailor0:  26,  sailor1:  27,  sailor2:  28,  sailor3:  29,  jet0:  30,  jet1:  31,  jet2:  32,  jet3:  33} };
 const ITEM = { flake: 0, gold: 1, perfect: 2, ice: 3, heart: 4, star: 5 };
 
 function drawFrame(g, name, cx, cy, h) {
@@ -407,8 +427,12 @@ let emo = null, emoT = 0;          // эмоция Федука
 let snowfall = false, aurora = 0, holding = null, time = 0;
 let judge = null;                  // последняя оценка попадания (надпись)
 const items = [], particles = [], floaters = [];
-const ambient = [];
-for (let i = 0; i < 50; i++) ambient.push({ x: Math.random() * W, y: Math.random() * H, s: 1 + Math.random() * 2, v: 12 + Math.random() * 30 });
+const SNOW = { far: [], mid: [], near: [] };
+for (let i = 0; i < 60; i++) SNOW.far.push({ x: Math.random() * W, y: Math.random() * H, s: 1, v: 8 + Math.random() * 12, ph: Math.random() * 6.28 });
+for (let i = 0; i < 34; i++) SNOW.mid.push({ x: Math.random() * W, y: Math.random() * H, s: 2 + Math.floor(Math.random() * 2), v: 26 + Math.random() * 28, ph: Math.random() * 6.28 });
+for (let i = 0; i < 14; i++) SNOW.near.push({ x: Math.random() * W, y: Math.random() * H, s: 7 + Math.random() * 10, v: 80 + Math.random() * 60, ph: Math.random() * 6.28 });
+const rings = [], shards = [], trail = [];
+let parX = 0, lastTrail = 0;
 
 const player = { x: W / 2 - 35, y: H * 0.17, w: 70, h: 110, speed: 520, vx: 0, tilt: 0 };
 const CATCH_Y = player.y + player.h * 0.45;
@@ -475,6 +499,15 @@ function planAhead(now) {
 // =====================================================================
 //  ЭФФЕКТЫ
 // =====================================================================
+function catchFx(x, y, color, perfect) {
+  rings.push({ x, y, t: 0, life: perfect ? 0.45 : 0.35, r0: 6, r1: perfect ? 38 : 28, color, w: 2 });
+  if (perfect) rings.push({ x, y, t: -0.06, life: 0.4, r0: 4, r1: 26, color: "#ffffff", w: 2 });
+  const sp = perfect ? 210 : 150;
+  for (let k = 0; k < 6; k++) {
+    const a = k * Math.PI / 3 + Math.random() * 0.2;
+    shards.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, rot: a, vr: (Math.random() - 0.5) * 10, t: 0, life: 0.45, color, len: perfect ? 8 : 6 });
+  }
+}
 function burst(x, y, color, n = 10, spd = 140) {
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2, v = spd * (0.4 + Math.random() * 0.8);
@@ -508,7 +541,8 @@ function judgeNote(f, now) {
     bell(f.midi, when, perfect ? 0.24 : 0.16);
     if (perfect) bell(f.midi + 12, when, 0.06);
     if (f.gold) bell(f.midi + 19, when, 0.06);
-    burst(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#bff4ff" : "#dff3ff", perfect ? 14 : 7, perfect ? 190 : 130);
+    burst(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#bff4ff" : "#dff3ff", perfect ? 10 : 5, perfect ? 190 : 130);
+    catchFx(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#9ff0ff" : "#dff3ff", perfect);
     judge = { text: perfect ? "ИДЕАЛЬНО" : "ХОРОШО", color: perfect ? "#7ff0ff" : "#ffffff", t: 0 };
     floatText(f.x, CATCH_Y - 20, "+" + pts, f.gold ? "#ffd34d" : "#fff", 8);
     if (combo === 25 || combo === 50 || combo === 100) flashText = { text: "КОМБО " + combo + "!", t: 0 };
@@ -543,7 +577,14 @@ function judgeSpecial(f) {
 
 function update(dt) {
   time += dt;
-  for (const a of ambient) { a.y -= a.v * dt * (snowfall ? 2.2 : 1); if (a.y < -4) { a.y = H + 4; a.x = Math.random() * W; } }
+  const sp = snowfall ? 2.2 : 1, wind = snowfall ? 45 : 8;
+  for (const k in SNOW) for (const a of SNOW[k]) {
+    a.y -= a.v * dt * sp;
+    a.x += Math.sin(time * 0.7 + a.ph) * wind * dt * (k === "near" ? 1.6 : k === "mid" ? 1 : 0.4);
+    if (a.y < -20) { a.y = H + 20; a.x = Math.random() * W; }
+    if (a.x < -20) a.x += W + 40; else if (a.x > W + 20) a.x -= W + 40;
+  }
+  parX += (clamp((pcx() - W / 2) / (W / 2), -1, 1) - parX) * Math.min(1, dt * 3);
   updateFx(dt);
   aurora += ((snowfall || state === "over" && !failed ? 1 : 0) - aurora) * Math.min(1, dt * 1.5);
   if (state !== "play") return;
@@ -612,6 +653,11 @@ function updateFx(dt) {
     if (p.t > p.life) particles.splice(i, 1);
   }
   for (let i = floaters.length - 1; i >= 0; i--) { const f = floaters[i]; f.t += dt; f.y -= 40 * dt; if (f.t > f.life) floaters.splice(i, 1); }
+  for (let i = rings.length - 1; i >= 0; i--) { rings[i].t += dt; if (rings[i].t > rings[i].life) rings.splice(i, 1); }
+  for (let i = shards.length - 1; i >= 0; i--) {
+    const q = shards[i]; q.t += dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.93; q.vy *= 0.93; q.rot += q.vr * dt;
+    if (q.t > q.life) shards.splice(i, 1);
+  }
   if (flashText) { flashText.t += dt; if (flashText.t > 1.3) flashText = null; }
   if (judge) { judge.t += dt; if (judge.t > 0.5) judge = null; }
   shakeT = Math.max(0, shakeT - dt); hurtT = Math.max(0, hurtT - dt); catchPulse = Math.max(0, catchPulse - dt * 6);
@@ -653,11 +699,36 @@ function drawAurora(g, w, h, level, t) {
   g.restore();
 }
 
+function drawLayer(im, depth, bottom) {
+  const k = 1.08, w = W * k, h = H * k;
+  ctx.drawImage(im, (W - w) / 2 - parX * depth, bottom ? H - h : (H - h) / 2, w, h);
+}
+function drawWindows(mask, depth, bottom, pulse) {
+  if (!mask) return;
+  const k = 1.08, w = W * k, h = H * k, x0 = (W - w) / 2 - parX * depth, y0 = bottom ? H - h : (H - h) / 2;
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  if (snowfall) {
+    const b = beats(), strips = 12, mw = mask.width || mask.naturalWidth, mh = mask.height || mask.naturalHeight, sw = mw / strips;
+    for (let s = 0; s < strips; s++) {
+      ctx.globalAlpha = 0.15 + 0.6 * Math.max(0, Math.cos((b * 0.5 - s / strips) * Math.PI * 2));
+      ctx.drawImage(mask, s * sw, 0, sw, mh, x0 + s * w / strips, y0, w / strips, h);
+    }
+  } else { ctx.globalAlpha = 0.08 + pulse * 0.4; ctx.drawImage(mask, x0, y0, w, h); }
+  ctx.restore();
+}
+function drawSnowLayer(list, alpha) {
+  ctx.fillStyle = `rgba(225,238,255,${alpha})`;
+  for (const a of list) ctx.fillRect(Math.floor(a.x), Math.floor(a.y), a.s, a.s);
+}
 function drawBG(pulse, now) {
-  if (loaded(bgImg)) ctx.drawImage(bgImg, 0, 0, W, H); else { ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, H); }
-  // рассвет к концу песни
+  const layered = useLayers();
+  const live = state !== "menu";
   const prog = state === "menu" ? 0 : clamp(now / SONG_END, 0, 1);
   const dawn = state === "over" && !failed ? 1 : smooth(0.8, 1.0, prog);
+  // небо
+  if (layered) drawLayer(LAYER.sky, 4, false);
+  else if (loaded(bgImg)) drawLayer(bgImg, 7, true);
+  else { ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, H); }
   if (dawn > 0) {
     const gr = ctx.createLinearGradient(0, H * 0.75, 0, 0);
     gr.addColorStop(0, `rgba(255,140,90,${0.55 * dawn})`);
@@ -666,25 +737,45 @@ function drawBG(pulse, now) {
     ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
   }
   drawAurora(ctx, W, H, aurora, time);
-  // звёзды/хлопья на фоне
-  ctx.fillStyle = `rgba(220,235,255,${0.45 + pulse * 0.35})`;
-  for (const a of ambient) ctx.fillRect(Math.floor(a.x), Math.floor(a.y), a.s, a.s);
-  // окна мигают в бит, в припеве — волной
-  if (loaded(winImg) && state !== "menu") {
-    ctx.save(); ctx.globalCompositeOperation = "lighter";
-    if (snowfall) {
-      const b = beats(), strips = 12, sw = winImg.naturalWidth / strips;
-      for (let s = 0; s < strips; s++) {
-        const ph = (b * 0.5 - s / strips) * Math.PI * 2;
-        ctx.globalAlpha = 0.15 + 0.6 * Math.max(0, Math.cos(ph)) ;
-        ctx.drawImage(winImg, s * sw, 0, sw, winImg.naturalHeight, s * W / strips, 0, W / strips, H);
-      }
-    } else {
-      ctx.globalAlpha = 0.08 + pulse * 0.4;
-      ctx.drawImage(winImg, 0, 0, W, H);
-    }
+  // дальний снег мерцает
+  for (const a of SNOW.far) { ctx.fillStyle = `rgba(225,238,255,${0.35 + 0.3 * Math.sin(time * 3 + a.ph) + pulse * 0.2})`; ctx.fillRect(Math.floor(a.x), Math.floor(a.y), 1, 1); }
+  if (layered) {
+    drawLayer(LAYER.far, 9, true);
+    if (live) drawWindows(WMASK.far, 9, true, pulse * 0.7);
+    drawSnowLayer(SNOW.mid, 0.55 + pulse * 0.25);
+    drawLayer(LAYER.near, 16, true);
+    if (live) drawWindows(WMASK.near, 16, true, pulse);
+    if (dawn > 0) { ctx.fillStyle = `rgba(255,150,110,${0.12 * dawn})`; ctx.fillRect(0, 0, W, H); }
+  } else {
+    if (live && loaded(winImg)) drawWindows(winImg, 7, true, pulse);
+    drawSnowLayer(SNOW.mid, 0.55 + pulse * 0.25);
+  }
+}
+
+// крупные размытые хлопья прямо перед камерой
+function drawNearSnow() {
+  ctx.save(); ctx.globalAlpha = snowfall ? 0.45 : 0.3;
+  for (const a of SNOW.near) ctx.drawImage(GLOW.white, a.x - a.s, a.y - a.s, a.s * 2, a.s * 2);
+  ctx.restore();
+}
+
+function drawRingsShards() {
+  for (const r of rings) {
+    if (r.t < 0) continue;
+    const k = r.t / r.life, rad = r.r0 + (r.r1 - r.r0) * (1 - (1 - k) * (1 - k));
+    ctx.globalAlpha = 1 - k; ctx.strokeStyle = r.color; ctx.lineWidth = r.w;
+    // пиксельное кольцо: восьмиугольник
+    ctx.beginPath();
+    for (let i = 0; i <= 8; i++) { const a = i * Math.PI / 4 + Math.PI / 8; const px = Math.round(r.x + Math.cos(a) * rad), py = Math.round(r.y + Math.sin(a) * rad); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+    ctx.stroke();
+  }
+  for (const q of shards) {
+    ctx.globalAlpha = Math.max(0, 1 - q.t / q.life);
+    ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.rot); ctx.fillStyle = q.color;
+    ctx.fillRect(-q.len / 2, -1, q.len, 2); ctx.fillRect(q.len / 2 - 2, -3, 2, 6);
     ctx.restore();
   }
+  ctx.globalAlpha = 1;
 }
 
 function drawTargets(now) {
@@ -764,10 +855,25 @@ function drawPlayer(pulse) {
     ctx.strokeStyle = `rgba(212,123,255,${a})`; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(cx, cy, 72 + Math.sin(time * 5) * 6, 0, Math.PI * 2); ctx.stroke();
   }
+  const frame = fedukFrame();
+  // шлейф при быстром движении
+  if (time - lastTrail > 0.035) { trail.push({ x: cx, y: cy, tilt: player.tilt, frame, v: Math.abs(player.vx) }); lastTrail = time; if (trail.length > 6) trail.shift(); }
+  if (state === "play") {
+    for (let i = 0; i < trail.length - 1; i++) {
+      const tr = trail[i];
+      if (tr.v < 260 || Math.abs(tr.x - cx) < 6) continue;
+      ctx.save(); ctx.globalAlpha = 0.07 + i * 0.035;
+      ctx.translate(tr.x, tr.y); ctx.rotate(tr.tilt); drawFrame(ctx, tr.frame, 0, 0, 150); ctx.restore();
+    }
+    if (Math.abs(player.vx) > 340 && Math.random() < 0.6) {
+      const dir = Math.sign(player.vx);
+      particles.push({ x: cx - dir * 18, y: cy + 30 + Math.random() * 30, vx: -dir * (40 + Math.random() * 60), vy: 20 + Math.random() * 30, life: 0.4 + Math.random() * 0.3, t: 0, c: "rgba(230,242,255,0.9)", s: 2 });
+    }
+  }
   ctx.save();
   ctx.translate(cx, cy); ctx.rotate(player.tilt); ctx.scale(s, s);
   if (hurtT > 0 && Math.floor(hurtT * 20) % 2 === 0) ctx.globalAlpha = 0.45;
-  drawFrame(ctx, fedukFrame(), 0, 0, 150);
+  drawFrame(ctx, frame, 0, 0, 150);
   ctx.restore();
 }
 
@@ -849,7 +955,9 @@ function render() {
   drawTargets(now);
   drawItems(now);
   if (state !== "menu") drawPlayer(pulse);
+  drawRingsShards();
   drawFx();
+  drawNearSnow();
   ctx.restore();
   drawHurt();
   if (state === "play" || state === "paused") drawHUD(pulse, now);
@@ -910,7 +1018,7 @@ function startGame() {
   actx.resume();
   score = 0; hp = MAX_HP; combo = 0; bestCombo = 0; nPerfect = 0; nGood = 0; nMiss = 0; holdScore = 0;
   chartIdx = 0; plan = []; lastPlanned = null; failed = false;
-  items.length = 0; particles.length = 0; floaters.length = 0;
+  items.length = 0; particles.length = 0; floaters.length = 0; rings.length = 0; shards.length = 0; trail.length = 0;
   magnetT = 0; emo = null; holding = null; snowfall = false; judge = null; sustainOff();
   player.x = W / 2 - player.w / 2;
   startSong();
@@ -926,6 +1034,13 @@ function finish(win) {
   const acc = accuracy(), grade = gradeOf(acc), now = songNow();
   result = { win, acc, grade, score, bestCombo, nPerfect, nGood, nMiss, level: L.name, progress: clamp(now / SONG_END, 0, 1) };
   const badges = [];
+  const plays = store.get("plays", 0) + 1; store.set("plays", plays);
+  const clears = store.get("clears", 0) + (win ? 1 : 0); store.set("clears", clears);
+  const giveAny = id => { if (!unlocked.has(id)) { unlocked.add(id); badges.push("ОТКРЫТ СКИН: " + SKINS.find(s => s.id === id).name); } };
+  if (plays >= 3) giveAny("mask");
+  if (clears >= 3) giveAny("sailor");
+  if (score >= 150000) giveAny("jet");
+  store.set("unlocked", [...unlocked]);
   if (win) {
     const key = "best_" + levelKey, prev = store.get(key, null);
     if (!prev || score > prev.score) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
