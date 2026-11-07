@@ -329,7 +329,7 @@ const AC = window.AudioContext || window.webkitAudioContext;
 const actx = new AC();
 try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
 const master = actx.createGain(); master.connect(actx.destination);
-const musicGain = actx.createGain(); musicGain.gain.value = 0.55; musicGain.connect(master);
+const musicGain = actx.createGain(); musicGain.gain.value = 0.32; musicGain.connect(master);
 const sfxGain = actx.createGain(); sfxGain.connect(master);
 let muted = store.get("muted", false);
 let songBuf = null, songSrc = null, songStart = 0;
@@ -532,8 +532,8 @@ function judgeNote(f, now) {
     const pts = (perfect ? 300 : 100) * mult;
     score += pts;
     catchPulse = 1;
-    bell(f.midi, when, perfect ? 0.24 : 0.16);
-    if (perfect) bell(f.midi + 12, when, 0.06);
+    bell(f.midi, when, perfect ? 0.3 : 0.22);
+    if (perfect) bell(f.midi + 12, when, 0.08);
     if (f.gold) bell(f.midi + 19, when, 0.06);
     burst(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#bff4ff" : "#dff3ff", perfect ? 10 : 5, perfect ? 190 : 130);
     catchFx(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#9ff0ff" : "#dff3ff", perfect);
@@ -580,7 +580,9 @@ function update(dt) {
   }
   parX += (clamp((pcx() - W / 2) / (W / 2), -1, 1) - parX) * Math.min(1, dt * 3);
   updateFx(dt);
-  aurora += ((snowfall || state === "over" && !failed ? 1 : 0) - aurora) * Math.min(1, dt * 1.5);
+  const ending = (state === "over" || state === "outro") && !failed;
+  aurora += ((snowfall || ending ? 1 : 0) - aurora) * Math.min(1, dt * 1.5);
+  if (state === "outro") { updateOutro(dt); return; }
   if (state !== "play") return;
 
   // управление
@@ -701,8 +703,8 @@ function drawWindows(mask, depth, bottom, pulse) {
   if (!mask) return;
   const k = 1.08, w = W * k, h = H * k, x0 = (W - w) / 2 - parX * depth, y0 = bottom ? H - h : (H - h) / 2;
   ctx.save(); ctx.globalCompositeOperation = "lighter";
-  if (snowfall) {
-    const b = beats(), strips = 12, mw = mask.width || mask.naturalWidth, mh = mask.height || mask.naturalHeight, sw = mw / strips;
+  if (snowfall || state === "outro" && !failed) {
+    const b = state === "outro" ? time * 2 : beats(), strips = 12, mw = mask.width || mask.naturalWidth, mh = mask.height || mask.naturalHeight, sw = mw / strips;
     for (let s = 0; s < strips; s++) {
       ctx.globalAlpha = 0.15 + 0.6 * Math.max(0, Math.cos((b * 0.5 - s / strips) * Math.PI * 2));
       ctx.drawImage(mask, s * sw, 0, sw, mh, x0 + s * w / strips, y0, w / strips, h);
@@ -718,7 +720,7 @@ function drawBG(pulse, now) {
   const layered = useLayers();
   const live = state !== "menu";
   const prog = state === "menu" ? 0 : clamp(now / SONG_END, 0, 1);
-  const dawn = state === "over" && !failed ? 1 : smooth(0.8, 1.0, prog);
+  const dawn = (state === "over" || state === "outro") && !failed ? 1 : smooth(0.8, 1.0, prog);
   // небо
   if (layered) {   // небо чуть ниже, чтобы луна не пряталась под счётом
     ctx.fillStyle = "#02163b"; ctx.fillRect(0, 0, W, H);
@@ -828,6 +830,8 @@ function drawItems(now) {
 }
 
 function fedukFrame() {
+  if (state === "outro" && !failed) return skinId === "base" ? "victory" : skin().frames[Math.floor(beats() * 4 + 40) % skin().frames.length];
+  if (state === "outro" && failed) return skinId === "base" ? "hurt" : skin().frames[0];
   if (state === "over" && !failed) return skinId === "base" ? "victory" : skin().frames[0];
   if (emo) return emo;
   const fr = skin().frames;
@@ -840,7 +844,8 @@ function drawPlayer(pulse) {
   const b = beats();
   const single = skin().frames.length === 1;
   const bobY = Math.sin(b * Math.PI * (single ? 1 : 0.5)) * (single ? 4 : 2);
-  const cx = pcx() + Math.sin(time * 1.7) * 1.2, cy = player.y + player.h / 2 + bobY;
+  const cx = pcx() + Math.sin(time * 1.7) * 1.2, cy = player.y + player.h / 2 + bobY + outroOffset();
+  if (outro && !outro.win) player.tilt = outro.t * 5;   // кувырок при падении
   const s = 1 + catchPulse * 0.08 + pulse * 0.015;
   // ореол при комбо 30+ и в Снегопаде
   if (combo >= 30 || snowfall) {
@@ -956,6 +961,7 @@ function render() {
   drawRingsShards();
   drawFx();
   drawNearSnow();
+  drawOutro();
   ctx.restore();
   drawHurt();
   if (state === "play" || state === "paused") drawHUD(pulse, now);
@@ -1017,6 +1023,7 @@ function startGame() {
   score = 0; hp = MAX_HP; combo = 0; bestCombo = 0; nPerfect = 0; nGood = 0; nMiss = 0; holdScore = 0;
   chartIdx = 0; plan = []; lastPlanned = null; failed = false;
   items.length = 0; particles.length = 0; floaters.length = 0; rings.length = 0; shards.length = 0; trail.length = 0;
+  fireworks.length = 0; outro = null; player.tilt = 0; musicGain.gain.cancelScheduledValues(actx.currentTime); musicGain.gain.value = 0.32;
   magnetT = 0; emo = null; holding = null; snowfall = false; judge = null; sustainOff();
   player.x = W / 2 - player.w / 2;
   startSong();
@@ -1025,18 +1032,113 @@ function startGame() {
   showScreen(null);
 }
 
+// =====================================================================
+//  ФИНАЛЬНАЯ ЗАСТАВКА
+// =====================================================================
+const fireworks = [];
+let outro = null;                       // { t, win, dur }
+const FW_COLORS = ["#ffd34d", "#7ff0ff", "#ff7aa8", "#b98bff", "#8dff9a", "#ffffff"];
+let noiseBuf = null;
+function pop(vol = 0.25) {              // хлопок салюта
+  if (!noiseBuf) {
+    noiseBuf = actx.createBuffer(1, actx.sampleRate * 0.4, actx.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+  }
+  const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+  src.buffer = noiseBuf; f.type = "lowpass"; f.frequency.value = 900 + Math.random() * 900; g.gain.value = vol;
+  src.connect(f); f.connect(g); g.connect(sfxGain); src.start();
+}
+function firework(x, y) {
+  const col = FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)], n = 56 + Math.floor(Math.random() * 20), sp = 110 + Math.random() * 70;
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2, v = sp * (0.85 + Math.random() * 0.3);
+    fireworks.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, life: 1.2 + Math.random() * 0.6, c: Math.random() < 0.2 ? "#ffffff" : col, s: Math.random() < 0.5 ? 3 : 2 });
+  }
+  fireworks.push({ x, y, vx: 0, vy: 0, t: 0, life: 0.35, flash: true, c: col });
+  rings.push({ x, y, t: 0, life: 0.4, r0: 4, r1: 30, color: col, w: 2 });
+  pop(0.18 + Math.random() * 0.1);
+}
+function playHook() {                   // мелодия припева колокольчиками
+  const a = 41.5, b = 48.4, t0 = actx.currentTime + 0.5;
+  for (let i = 0; i < NOTE_T.length; i++) if (NOTE_T[i] >= a && NOTE_T[i] < b) bell(CHART_P[i] + 12, t0 + (NOTE_T[i] - a), 0.16);
+}
+function startOutro(win) {
+  outro = { t: 0, win, dur: win ? 7.2 : 3.4, fw: 0.9 };
+  for (const f of items) f.state = f.state === "fly" ? "dodged" : f.state;
+  items.length = 0; judge = null; flashText = null; emo = null;
+  if (win) { playHook(); musicGain.gain.setTargetAtTime(0.12, actx.currentTime, 0.6); }
+}
+function updateOutro(dt) {
+  const o = outro; o.t += dt;
+  for (let i = fireworks.length - 1; i >= 0; i--) {
+    const q = fireworks[i]; q.t += dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.97; q.vy = q.vy * 0.97 + 70 * dt;
+    if (q.t > q.life) fireworks.splice(i, 1);
+  }
+  if (o.win && o.t > o.fw && o.t < 6) { firework(40 + Math.random() * (W - 80), 90 + Math.random() * 220); o.fw = o.t + 0.22 + Math.random() * 0.3; }
+  // шлейф при взлёте
+  if (o.win && o.t > 1.4 && o.t < 2.6) for (let k = 0; k < 3; k++)
+    particles.push({ x: pcx() + (Math.random() - 0.5) * 30, y: player.y + player.h / 2 + outroOffset() + 50, vx: (Math.random() - 0.5) * 30, vy: 60 + Math.random() * 60, life: 0.6, t: 0, c: "#dff3ff", s: 2 + Math.floor(Math.random() * 2) });
+  if (o.t >= o.dur) endOutro();
+}
+function outroOffset() {               // смещение Федука по вертикали в заставке
+  if (!outro) return 0;
+  const t = outro.t;
+  if (outro.win) return t < 1.4 ? -Math.sin(t * 3) * 6 : -Math.pow((t - 1.4) * 2.2, 2.2) * 60;
+  return Math.pow(t * 1.6, 2) * 60;
+}
+function endOutro() {
+  if (!outro) return;
+  outro = null; state = "over"; fireworks.length = 0;
+  showScreen("over");
+}
+function drawOutro() {
+  if (!outro) return;
+  const o = outro, t = o.t;
+  // салют
+  ctx.save(); ctx.globalCompositeOperation = "lighter";
+  for (const q of fireworks) {
+    const a = Math.max(0, 1 - q.t / q.life);
+    if (q.flash) { ctx.globalAlpha = a * 0.7; ctx.drawImage(GLOW.white, q.x - 30, q.y - 30, 60, 60); continue; }
+    ctx.globalAlpha = a * (0.75 + 0.25 * Math.sin(q.t * 40)); ctx.fillStyle = q.c; ctx.fillRect(Math.floor(q.x), Math.floor(q.y), q.s, q.s);
+    ctx.globalAlpha = a * 0.35; ctx.fillRect(Math.floor(q.x - q.vx * 0.03), Math.floor(q.y - q.vy * 0.03), 2, 2);
+  }
+  ctx.restore();
+  ctx.globalAlpha = 1;
+  if (!o.win) { ctx.fillStyle = `rgba(5,8,20,${Math.min(0.6, t * 0.35)})`; ctx.fillRect(0, 0, W, H); }
+  // киношные полосы
+  const bar = Math.min(1, t * 2.5) * 46;
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, bar); ctx.fillRect(0, H - bar, W, bar);
+  ctx.textBaseline = "middle";
+  const fade = (a, b) => clamp((t - a) / (b - a), 0, 1);
+  if (o.win) {
+    const k1 = fade(2.4, 2.8), k2 = fade(3.2, 3.5), k3 = fade(4.0, 4.4);
+    if (k1 > 0) { ctx.globalAlpha = k1; pixelText("ПЕСНЯ ПРОЙДЕНА", W / 2, H * 0.36, 14, "#ffffff", "center"); }
+    if (k2 > 0) {
+      const g = result.grade, sc = 1 + (1 - k2) * 1.5;
+      ctx.globalAlpha = k2;
+      ctx.drawImage(g === "S" ? GLOW.gold : GLOW.cyan, W / 2 - 80, H * 0.5 - 80, 160, 160);
+      pixelText(g, W / 2, H * 0.5, Math.round(70 * sc), GRADE_COLOR[g], "center");
+    }
+    if (k3 > 0) { ctx.globalAlpha = k3; pixelText("Всюду магия и свет", W / 2, H * 0.64, 10, "#ffd34d", "center"); }
+  } else {
+    const k1 = fade(1.0, 1.5);
+    if (k1 > 0) { ctx.globalAlpha = k1; pixelText("Падают хлопья,", W / 2, H * 0.44, 10, "#dfe8ff", "center"); pixelText("и с ними ты", W / 2, H * 0.5, 10, "#dfe8ff", "center"); }
+  }
+  ctx.globalAlpha = 1;
+  if (t > 1.2) pixelText("нажми, чтобы пропустить", W / 2, H - 23, 6, "rgba(255,255,255,0.5)", "center");
+  ctx.textBaseline = "alphabetic";
+}
+
 let result = null;
 function finish(win) {
   if (state !== "play") return;
-  state = "over"; failed = !win; holding = null; sustainOff();
+  state = "outro"; failed = !win; holding = null; sustainOff();
   const acc = accuracy(), grade = gradeOf(acc), now = songNow();
   result = { win, acc, grade, score, bestCombo, nPerfect, nGood, nMiss, level: L.name, progress: clamp(now / SONG_END, 0, 1) };
   const badges = [];
   if (win) {
     const key = "best_" + levelKey, prev = store.get(key, null);
     if (!prev || score > prev.score) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
-    sfx.win();
-    for (let i = 0; i < 80; i++) burst(Math.random() * W, H * 0.3 + Math.random() * H * 0.5, Math.random() < 0.3 ? "#ffd34d" : "#dff3ff", 1, 220);
   } else {
     sfx.lose();
     stopSong();
@@ -1053,7 +1155,8 @@ function finish(win) {
   $("overBadges").innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join("");
   $("againBtn").textContent = win ? "ЕЩЁ РАЗ" : "ПОПРОБОВАТЬ СНОВА";
   buildLevels();
-  setTimeout(() => showScreen("over"), win ? 900 : 400);
+  showScreen(null);
+  startOutro(win);
 }
 
 function pauseGame() { if (state !== "play") return; state = "paused"; actx.suspend(); showScreen("pause"); }
@@ -1153,6 +1256,7 @@ window.addEventListener("keydown", e => {
   if (e.code === "Escape" || e.code === "KeyP") { state === "play" ? pauseGame() : resumeGame(); }
   if (e.code === "Space" || e.code === "Enter") {
     e.preventDefault();
+    if (state === "outro" && outro.t > 0.8) { endOutro(); return; }
     if (state === "menu" && $("menu").classList.contains("show") && !$("playBtn").disabled) startGame();
     else if (state === "paused") resumeGame();
     else if (state === "over" && $("over").classList.contains("show")) startGame();
@@ -1168,7 +1272,7 @@ function pMove(e) {
   const rect = canvas.getBoundingClientRect();
   pointer.x = (e.clientX - rect.left) / rect.width * W;
 }
-canvas.addEventListener("pointerdown", e => { pointer.active = true; pMove(e); });
+canvas.addEventListener("pointerdown", e => { if (state === "outro" && outro.t > 0.8) { endOutro(); return; } pointer.active = true; pMove(e); });
 window.addEventListener("pointermove", e => { if (e.pointerType === "mouse" && state === "play") pointer.active = true; pMove(e); });
 window.addEventListener("pointerup", e => { if (e.pointerType !== "mouse") { pointer.active = false; pointer.x = null; } });
 
