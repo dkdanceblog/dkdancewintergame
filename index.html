@@ -5,9 +5,9 @@
   <title>ДК ДАНС — Хлопья летят наверх</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a1430">
-  <meta name="description" content="Управляй летающим Федуком и лови хлопья, которые летят наверх. Собери сотку!">
-  <meta property="og:title" content="Хлопья летят наверх — игра">
-  <meta property="og:description" content="Управляй летающим Федуком и лови хлопья, которые летят наверх. Собери сотку!">
+  <meta name="description" content="Лови хлопья в такт песни Федука «Хлопья летят наверх». Пройди песню на S!">
+  <meta property="og:title" content="Хлопья летят наверх — ритм-игра">
+  <meta property="og:description" content="Лови хлопья в такт песни. Пройди песню на S!">
   <meta property="og:image" content="assets/bg.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,58 +22,58 @@
       color: #fff; user-select: none; -webkit-user-select: none;
     }
     #wrap { position: relative; --u: 1; }
-    canvas {
+    canvas#game {
       display: block; border-radius: calc(var(--u) * 10px);
       box-shadow: 0 0 40px rgba(80,140,255,0.25);
       transition: filter .3s ease, transform .33s ease;
-      touch-action: none; image-rendering: pixelated;
+      touch-action: none;
     }
-    canvas.blurred { filter: blur(5px) brightness(.55); transform: scale(1.02); }
+    canvas#game.blurred { filter: blur(4px) brightness(.5); transform: scale(1.02); }
 
     #pauseBtn {
       position: absolute; top: calc(var(--u) * 8px); right: calc(var(--u) * 8px);
       width: calc(var(--u) * 30px); height: calc(var(--u) * 30px);
       border: calc(var(--u) * 2px) solid rgba(255,255,255,.55);
       background: rgba(10,20,50,.55); color: #fff; border-radius: calc(var(--u) * 6px);
-      font: inherit; font-size: calc(var(--u) * 10px); cursor: pointer; display: none;
-      padding: 0;
+      font: inherit; font-size: calc(var(--u) * 10px); cursor: pointer; display: none; padding: 0;
     }
     #pauseBtn.show { display: block; }
 
     .screen {
-      position: absolute; inset: 0; display: none;
+      position: absolute; inset: 0; display: none; overflow-y: auto;
       align-items: center; justify-content: center; text-align: center;
-      background: rgba(3,8,25,.45);
-      border-radius: calc(var(--u) * 10px);
+      background: rgba(3,8,25,.45); border-radius: calc(var(--u) * 10px);
     }
     .screen.show { display: flex; animation: fadeUp .35s ease; }
-    .card { width: 88%; padding: calc(var(--u) * 14px); }
+    .card { width: 92%; padding: calc(var(--u) * 10px); }
     h1 {
-      font-size: calc(var(--u) * 19px); line-height: 1.45; margin: 0 0 calc(var(--u) * 10px);
+      font-size: calc(var(--u) * 19px); line-height: 1.45; margin: 0 0 calc(var(--u) * 8px);
       color: #eaf6ff; text-shadow: 0 calc(var(--u)*3px) 0 #2a5cff, 0 0 calc(var(--u)*14px) #6aa8ff;
     }
-    h2 { font-size: calc(var(--u) * 16px); margin: 0 0 calc(var(--u) * 12px); line-height: 1.4; }
-    p  { font-size: calc(var(--u) * 9px); line-height: 1.8; margin: calc(var(--u) * 6px) 0; opacity: .92; }
-    .big { font-size: calc(var(--u) * 12px); }
+    h2 { font-size: calc(var(--u) * 15px); margin: 0 0 calc(var(--u) * 10px); line-height: 1.4; }
+    p  { font-size: calc(var(--u) * 8px); line-height: 1.8; margin: calc(var(--u) * 5px) 0; opacity: .92; }
+    .big { font-size: calc(var(--u) * 11px); }
     .gold { color: #ffd34d; }
+    .dim { opacity: .65; }
     .badge {
-      display: inline-block; margin-top: calc(var(--u) * 4px);
-      font-size: calc(var(--u) * 8px); color: #1b1300; background: #ffd34d;
+      display: inline-block; margin: calc(var(--u) * 3px);
+      font-size: calc(var(--u) * 7px); color: #1b1300; background: #ffd34d;
       padding: calc(var(--u) * 5px) calc(var(--u) * 7px); border-radius: calc(var(--u) * 4px);
       animation: pulse 1s ease-in-out infinite;
     }
     .legend {
-      display: grid; grid-template-columns: auto 1fr; gap: calc(var(--u) * 6px) calc(var(--u) * 8px);
-      align-items: center; text-align: left; margin: calc(var(--u) * 12px) auto;
-      width: fit-content; font-size: calc(var(--u) * 8px); line-height: 1.5;
-      background: rgba(0,0,0,.35); padding: calc(var(--u) * 10px); border-radius: calc(var(--u) * 8px);
+      display: grid; grid-template-columns: auto 1fr auto 1fr; gap: calc(var(--u) * 5px) calc(var(--u) * 6px);
+      align-items: center; text-align: left; margin: calc(var(--u) * 8px) auto;
+      width: fit-content; font-size: calc(var(--u) * 7px); line-height: 1.4;
+      background: rgba(0,0,0,.35); padding: calc(var(--u) * 8px); border-radius: calc(var(--u) * 8px);
     }
-    .legend img { width: calc(var(--u) * 20px); height: calc(var(--u) * 20px); image-rendering: pixelated; }
-    .btns { display: flex; flex-direction: column; gap: calc(var(--u) * 8px); align-items: center; margin-top: calc(var(--u) * 12px); }
+    .legend img { width: calc(var(--u) * 16px); height: calc(var(--u) * 16px); image-rendering: pixelated; }
+    .btns { display: flex; flex-direction: column; gap: calc(var(--u) * 7px); align-items: center; margin-top: calc(var(--u) * 10px); }
+    .row { display: flex; gap: calc(var(--u) * 5px); justify-content: center; }
     button.b {
-      font: inherit; font-size: calc(var(--u) * 10px); color: #fff; cursor: pointer;
+      font: inherit; font-size: calc(var(--u) * 9px); color: #fff; cursor: pointer;
       background: #2a5cff; border: none; border-radius: calc(var(--u) * 6px);
-      padding: calc(var(--u) * 11px) calc(var(--u) * 16px); min-width: 70%;
+      padding: calc(var(--u) * 10px) calc(var(--u) * 14px); min-width: 72%;
       box-shadow: 0 calc(var(--u) * 4px) 0 #12308f;
       transition: transform .08s ease, box-shadow .08s ease;
     }
@@ -81,10 +81,36 @@
     button.b:active { transform: translateY(calc(var(--u) * 3px)); box-shadow: 0 calc(var(--u) * 1px) 0 #12308f; }
     button.b.alt { background: rgba(255,255,255,.12); box-shadow: 0 calc(var(--u) * 4px) 0 rgba(0,0,0,.4); }
     button.b.gold { background: #e9a800; color: #1b1300; box-shadow: 0 calc(var(--u) * 4px) 0 #8a6200; }
-    .small { font-size: calc(var(--u) * 7px); opacity: .6; margin-top: calc(var(--u) * 10px); }
+    button.lvl {
+      font: inherit; font-size: calc(var(--u) * 7px); color: #cfe0ff; cursor: pointer; line-height: 1.6;
+      background: rgba(255,255,255,.08); border: calc(var(--u) * 2px) solid rgba(255,255,255,.18);
+      border-radius: calc(var(--u) * 6px); padding: calc(var(--u) * 6px) calc(var(--u) * 5px); width: 31%;
+    }
+    button.lvl.on { background: #2a5cff; border-color: #9fc0ff; color: #fff; }
+    button.lvl span { display: block; font-size: calc(var(--u) * 6px); opacity: .8; margin-top: calc(var(--u) * 3px); }
+    .small { font-size: calc(var(--u) * 6px); opacity: .6; margin-top: calc(var(--u) * 8px); line-height: 1.6; }
+    .grade {
+      font-size: calc(var(--u) * 64px); line-height: 1; margin: calc(var(--u) * 4px) 0 calc(var(--u) * 8px);
+      text-shadow: 0 calc(var(--u)*4px) 0 rgba(0,0,0,.5), 0 0 calc(var(--u)*18px) currentColor;
+      animation: pop .5s cubic-bezier(.2,1.8,.4,1);
+    }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 4px); font-size: calc(var(--u) * 7px); margin: calc(var(--u) * 8px) auto; width: 90%; }
+    .stats div { background: rgba(0,0,0,.35); padding: calc(var(--u) * 6px); border-radius: calc(var(--u) * 5px); line-height: 1.6; }
+    .stats b { display: block; font-size: calc(var(--u) * 10px); font-weight: normal; }
+    .skins { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: calc(var(--u) * 5px); margin: calc(var(--u) * 8px) 0; }
+    .skin {
+      background: rgba(0,0,0,.35); border: calc(var(--u) * 2px) solid transparent; border-radius: calc(var(--u) * 6px);
+      padding: calc(var(--u) * 4px); font-size: calc(var(--u) * 6px); line-height: 1.5; cursor: pointer; color: #fff; font-family: inherit;
+    }
+    .skin canvas { width: 100%; aspect-ratio: 211/297; image-rendering: pixelated; display: block; }
+    .skin.on { border-color: #ffd34d; }
+    .skin.locked canvas { filter: brightness(0) opacity(.5); }
+    .skin .cond { opacity: .7; font-size: calc(var(--u) * 5px); }
+    #cardImg { width: 70%; border-radius: calc(var(--u) * 6px); box-shadow: 0 0 20px rgba(0,0,0,.6); }
 
     @keyframes fadeUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: none; } }
     @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    @keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
@@ -96,14 +122,24 @@
   <div class="screen show" id="menu">
     <div class="card">
       <h1>ХЛОПЬЯ<br>ЛЕТЯТ<br>НАВЕРХ</h1>
-      <p>Лови хлопья в такт песни —<br>каждая снежинка звучит нотой.<br>Собери сотку!</p>
+      <p>Лови хлопья в такт песни.<br>Пройди её до конца на S!</p>
       <div class="legend" id="legend"></div>
-      <p id="menuBest" class="gold"></p>
+      <div class="row" id="levels"></div>
       <div class="btns">
         <button class="b" id="playBtn" disabled>ЗАГРУЗКА…</button>
+        <button class="b alt" id="skinsBtn">СКИНЫ</button>
         <button class="b alt" id="muteBtn1">ЗВУК: ВКЛ</button>
       </div>
-      <div class="small">← → / мышь / палец</div>
+      <div class="small">в центр снежинки — «идеально»<br>← → / мышь / палец</div>
+    </div>
+  </div>
+
+  <!-- СКИНЫ -->
+  <div class="screen" id="skinsScr">
+    <div class="card">
+      <h2>СКИНЫ</h2>
+      <div class="skins" id="skinGrid"></div>
+      <div class="btns"><button class="b" id="skinsBack">НАЗАД</button></div>
     </div>
   </div>
 
@@ -115,22 +151,35 @@
         <button class="b" id="resumeBtn">ПРОДОЛЖИТЬ</button>
         <button class="b alt" id="muteBtn2">ЗВУК: ВКЛ</button>
         <button class="b alt" id="restartBtn">ЗАНОВО</button>
+        <button class="b alt" id="menuBtn1">В МЕНЮ</button>
       </div>
     </div>
   </div>
 
-  <!-- ФИНАЛ -->
+  <!-- ИТОГИ -->
   <div class="screen" id="over">
     <div class="card">
       <h2 id="overTitle"></h2>
-      <p class="big" id="overScore"></p>
+      <div class="grade" id="overGrade"></div>
       <p id="overLine"></p>
-      <p id="overStats"></p>
-      <div id="overRecord"></div>
+      <div class="stats" id="overStats"></div>
+      <div id="overBadges"></div>
       <div class="btns">
-        <button class="b gold" id="endlessBtn">БЕСКОНЕЧНЫЙ РЕЖИМ</button>
+        <button class="b gold" id="cardBtn">КАРТОЧКА ДЛЯ СТОРИС</button>
         <button class="b" id="againBtn">ЕЩЁ РАЗ</button>
-        <button class="b alt" id="shareBtn">ПОДЕЛИТЬСЯ</button>
+        <button class="b alt" id="menuBtn2">В МЕНЮ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАРТОЧКА -->
+  <div class="screen" id="cardScr">
+    <div class="card">
+      <img id="cardImg" alt="Карточка результата">
+      <div class="btns">
+        <button class="b gold" id="shareCardBtn">ПОДЕЛИТЬСЯ</button>
+        <button class="b alt" id="saveCardBtn">СКАЧАТЬ</button>
+        <button class="b alt" id="cardBack">НАЗАД</button>
       </div>
     </div>
   </div>
@@ -142,13 +191,13 @@
 //  БАЗА
 // =====================================================================
 const W = 360, H = 640;
-const WIN_SCORE = 100;
-const MAX_HP = 10;              // 5 сердец по 2 половинки
-
+const MAX_HP = 10;                       // 5 сердец по 2 половинки
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const wrap = document.getElementById("wrap");
 const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem("dkdance_" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -159,10 +208,8 @@ function resize() {
   const s = Math.min(window.innerWidth / W, window.innerHeight / H) * 0.98;
   const cw = Math.floor(W * s), ch = Math.floor(H * s);
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.style.width = cw + "px";
-  canvas.style.height = ch + "px";
-  canvas.width = Math.round(cw * dpr);
-  canvas.height = Math.round(ch * dpr);
+  canvas.style.width = cw + "px"; canvas.style.height = ch + "px";
+  canvas.width = Math.round(cw * dpr); canvas.height = Math.round(ch * dpr);
   ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
   ctx.imageSmoothingEnabled = false;
   wrap.style.setProperty("--u", (cw / W).toFixed(3));
@@ -171,131 +218,113 @@ window.addEventListener("resize", resize);
 resize();
 
 // =====================================================================
-//  НОТЫ ПЕСНИ
-//  Темп 139 BPM, сетка восьмых. CHART_K — номер восьмой доли,
-//  CHART_P — нота (MIDI). Вытащено из трека и проверено по гармонии.
+//  ПЕСНЯ: темп, ноты, припевы
+//  139 BPM. CHART_K — номер восьмой доли, CHART_P — нота (MIDI),
+//  CHART_D — длительность ноты в треке (сек). Вытащено из самого трека.
 // =====================================================================
-const BPM = 139;
-const BEAT = 60 / BPM;
-const EIGHTH = BEAT / 2;
-const GRID_OFFSET = 0.057;      // где в mp3 первая доля
+const BPM = 139, BEAT = 60 / BPM, EIGHTH = BEAT / 2, OFF = 0.057;
 const CHART_K = [0,2,4,6,8,10,11,12,14,16,19,20,22,24,26,28,32,34,36,38,40,42,43,44,46,48,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,66,67,68,69,70,72,74,75,76,78,80,83,84,86,87,88,90,92,94,96,98,99,100,102,104,106,107,108,110,112,115,116,118,119,120,121,122,124,126,127,128,130,131,132,133,135,136,137,138,139,140,142,143,144,148,150,151,152,153,154,156,158,159,160,162,163,164,165,166,167,168,170,172,174,175,176,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,195,196,197,198,199,200,202,203,204,205,206,207,208,210,211,212,213,214,215,216,220,221,222,224,225,227,228,229,230,231,232,234,236,238,240,241,242,243,244,245,246,247,248,249,251,252,253,256,258,260,262,264,266,268,270,271,272,274,275,276,277,278,279,280,282,284,286,287,288,290,292,296,298,300,302,304,305,308,312,316,318,320,322,323,324,326,327,328,330,331,332,334,336,340,341,342,343,344,346,348,350,351,352,353,354,355,356,358,359,360,361,362,363,364,366,368,372,373,374,375,376,378,380,381,382,383,384,386,387,388,389,390,391,392,393,394,395,396,398,399,400,402,404,406,407,408,409,410,411,412,414,415,416,418,419,420,421,422,423,424,426,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,448,449,450,451,452,453,454,456,458,459,460,461,462,464,465,466,467,468,470,471,472,473,474,476,478,479,480,482,483,484,486,487,488,490,492,494,496,498,499,500,501,503,504,505,506,508,512,514,515,516,518,520,522,524,526,530,531,532,533,534,535,536,538,540,541,542,543,544,545,546,548,549,550,551,552,556,557,558,560,564,566,568,569,570,571,572,573,574,575,576,580,584,588,592,595,596,598,601,603,604,606,608,610,611,612,613,615,616,618,619,620,621,622,624,626,627,628,629,630,631,632,634,636,640,642,643,644,645,647,648,650,652,656,658,659,660,661,663,664,666,668,672,674,676,678,680,681,682,684,685,686,690,691,692,693,694,695,696,697,698,700,702,704,705,706,708,710,712,716,718,721,724,728,732,734,736,738,739,740,742,744,746,748,750,752,756,759,760,762,764,768];
 const CHART_P = [66,69,66,66,68,71,68,68,68,73,73,73,73,68,73,69,66,69,66,66,68,71,68,68,68,64,64,73,73,69,73,71,73,71,73,71,73,64,73,71,69,69,69,66,69,69,71,71,69,71,73,73,73,73,73,73,73,73,71,73,69,69,69,69,69,71,71,69,71,73,73,73,73,73,73,73,71,71,71,71,69,71,69,71,71,69,73,68,71,71,69,71,71,69,69,73,73,73,73,71,71,71,71,69,71,69,71,71,69,69,69,64,71,71,71,69,69,69,71,71,73,73,73,73,73,73,73,73,71,71,64,66,66,66,66,66,66,68,64,68,68,64,64,64,64,73,64,73,73,64,66,66,73,69,73,73,74,71,66,71,71,73,73,71,71,71,71,69,64,69,73,71,73,73,71,73,69,69,71,69,69,71,69,71,71,73,73,64,73,73,74,73,74,73,74,73,69,64,73,71,71,74,73,68,71,69,71,69,73,69,69,69,69,66,69,71,73,73,73,73,73,71,71,73,73,73,73,73,73,73,73,71,73,73,71,69,69,69,69,69,69,71,71,71,69,71,73,73,73,73,73,73,73,71,71,73,71,69,71,69,71,66,69,71,73,73,71,71,69,68,71,71,73,69,73,73,73,73,71,71,73,71,71,69,71,69,71,66,69,66,69,71,71,71,64,68,69,69,69,69,71,71,73,73,73,73,64,73,73,73,71,71,66,66,69,66,66,66,69,68,71,68,68,64,68,64,73,73,64,64,64,66,69,69,69,73,64,73,73,69,71,71,73,73,68,71,68,71,71,64,64,71,73,73,66,71,73,69,69,69,69,71,69,68,71,73,73,73,74,73,74,73,74,66,69,64,73,66,64,71,74,69,71,71,73,74,68,69,64,71,69,69,69,73,71,73,69,64,64,64,71,71,73,71,69,69,73,69,73,69,69,69,73,66,69,66,66,66,66,68,71,68,68,64,68,64,64,64,69,73,64,66,69,73,73,74,69,71,73,71,73,73,71,71,69,73,71,69,71,73,71,73,69,66,69,66,69,68,64,71,73,68,71,73,74,73,74,73,74,73,71,69,73,64,71,73,69,73,69,71,69,71,69,69,69,69,69,66,69,69,71,69,68,68,71,71,69,69,69,69,69,69,69];
-const noteTime = i => GRID_OFFSET + CHART_K[i] * EIGHTH;
+const CHART_D = [0.86,0.87,0.43,0.42,0.36,0.86,0.22,0.44,0.44,0.64,0.21,0.44,0.44,0.27,0.15,0.96,0.86,1.06,0.43,0.4,0.37,0.43,0.23,0.43,0.41,0.43,0.21,0.21,0.44,0.17,0.26,0.22,0.26,0.24,0.43,0.24,0.44,0.37,0.34,0.22,0.36,0.22,0.43,0.76,0.22,0.38,0.42,0.2,0.23,0.41,0.42,0.28,0.23,0.42,0.22,0.21,0.44,0.43,0.42,0.44,0.41,0.21,0.23,0.41,0.43,0.43,0.22,0.23,0.41,0.42,0.26,0.22,0.42,0.21,0.21,0.43,0.21,0.44,0.42,0.23,0.22,0.64,0.1,0.23,0.19,0.41,0.45,0.23,0.21,0.2,0.21,0.42,0.22,0.22,0.68,0.37,0.21,0.23,0.21,0.22,0.43,0.42,0.2,0.24,0.65,0.13,0.23,0.21,0.21,0.21,0.23,0.44,0.44,0.42,0.23,0.22,0.48,0.16,0.23,0.2,0.21,0.23,0.21,0.16,0.14,0.21,0.23,0.27,0.23,0.37,0.12,0.63,0.26,0.43,0.22,0.21,0.23,0.29,0.43,0.24,0.66,0.22,0.22,0.21,0.65,0.17,0.44,0.58,0.22,0.22,0.23,0.59,0.41,0.21,0.43,0.64,0.19,0.44,0.45,0.21,0.2,0.22,0.42,0.45,0.43,0.42,0.59,0.27,0.21,0.12,0.35,0.41,0.13,0.22,0.37,0.41,0.22,0.76,0.36,0.42,0.31,0.42,0.26,0.38,0.28,0.42,0.87,0.13,0.43,0.22,0.21,0.16,0.22,0.22,0.17,0.44,0.76,0.83,0.23,0.1,0.79,0.1,0.84,0.89,0.31,0.42,0.36,0.71,0.37,0.36,0.24,0.34,0.4,0.35,0.2,0.17,0.43,0.23,0.21,0.43,0.22,0.21,0.3,0.37,0.43,0.2,0.23,0.21,0.65,0.4,0.36,0.17,0.22,0.19,0.57,0.1,0.24,0.22,0.43,0.2,0.2,0.43,0.2,0.21,0.19,0.4,0.38,0.86,0.23,0.22,0.21,0.22,0.34,0.37,0.43,0.33,0.19,0.21,0.65,0.37,0.36,0.65,0.15,0.21,0.21,0.21,0.22,0.17,0.19,0.84,0.21,0.24,0.8,0.42,0.42,0.22,0.21,0.17,0.22,0.44,0.8,0.42,0.19,0.2,0.66,0.2,0.41,0.45,0.44,0.36,0.17,0.43,0.44,0.37,0.09,0.38,0.12,0.19,0.19,0.24,0.15,0.17,0.22,0.22,0.21,0.43,0.14,0.22,0.22,0.22,0.21,0.21,0.49,0.4,0.27,0.22,0.86,0.66,0.36,0.87,0.63,0.22,0.14,1.3,0.42,0.45,0.22,0.45,0.23,0.66,0.09,0.94,0.16,0.14,0.79,1.39,0.4,0.23,1.06,0.28,0.22,0.43,0.41,0.71,0.43,1.24,0.36,0.41,0.78,0.22,1.0,0.67,0.46,0.22,0.09,0.65,0.41,0.86,0.64,0.42,0.19,0.64,0.43,0.88,0.43,1.14,1.25,0.13,0.26,0.2,0.22,0.19,0.23,0.82,0.92,0.79,0.49,0.36,0.19,0.74,0.14,0.19,0.09,0.23,0.45,0.17,0.81,0.37,0.12,0.48,0.48,0.0,0.23,0.28,0.14,0.19,0.24,0.22,0.57,0.44,0.22,0.85,0.85,0.86,0.86,0.59,0.53,1.08,0.29,0.43,0.21,0.84,0.12,0.64,0.3,0.24,0.19,0.44,0.24,0.64,0.17,0.23,0.42,0.66,0.4,0.43,0.1,0.65,0.23,0.43,0.24,1.02,0.26,0.23,1.59,0.0,0.28,0.42,0.24,0.56,0.23,0.59,0.45,1.48,0.4,0.19,0.45,0.17,0.45,0.29,1.1,0.15,0.86,0.88,0.45,0.81,0.38,0.83,0.23,0.55,1.28,0.36,0.35,0.21,0.19,0.19,0.22,0.2,0.19,0.56,0.19,0.77,0.43,0.49,0.85,0.2,0.4,1.22,0.37,0.88,0.47,0.42,0.57,0.84,0.6,0.44,0.45,1.39,0.22,0.16,0.44,0.44,0.43,0.29,0.43,0.74,1.35,0.0,0.23,0.43,0.43,0.52,0.0];
+const NOTE_T = CHART_K.map(k => OFF + k * EIGHTH);
+const LAST_NOTE = NOTE_T[NOTE_T.length - 1];
+const CHORUS = [[41.5, 65.67], [96.75, 117.47], [131.28, 152.0]];   // «Снегопад»
+const inChorus = t => CHORUS.some(([a, b]) => t >= a && t < b);
+let SONG_END = LAST_NOTE + 1.2;
+
+// =====================================================================
+//  УРОВНИ
+// =====================================================================
+const LEVELS = {
+  easy:   { name: "ЛЁГКИЙ",     gap: BEAT * 2,   chorusGap: BEAT,       lead: 2.3, perfect: 18, good: 46, miss: 1, ice: 2, iceChance: 0.0,  maxSpeed: 380 },
+  normal: { name: "НОРМАЛЬНЫЙ", gap: BEAT,       chorusGap: EIGHTH * 1.5 + 0.001, lead: 1.9, perfect: 14, good: 40, miss: 1, ice: 2, iceChance: 0.3, maxSpeed: 560 },
+  hard:   { name: "ХАРДКОР",    gap: BEAT * 0.75, chorusGap: EIGHTH,    lead: 1.5, perfect: 11, good: 34, miss: 2, ice: 3, iceChance: 0.5, maxSpeed: 820 }
+};
+let levelKey = store.get("level", "normal");
+if (!LEVELS[levelKey]) levelKey = "normal";
+let L = LEVELS[levelKey];
+
+// =====================================================================
+//  СКИНЫ
+// =====================================================================
+const SKINS = [
+  { id: "base",   name: "КЛАССИКА",   cond: "всегда",                    frames: ["fly0", "fly1", "fly2", "fly3"] },
+  { id: "hat",    name: "ШАПКА",      cond: "пройди песню",              frames: ["hat0", "hat1", "hat2", "hat3"] },
+  { id: "scarf",  name: "ШАРФ",       cond: "оценка A или выше",         frames: ["scarf0", "scarf1", "scarf2", "scarf3"] },
+  { id: "lights", name: "ГИРЛЯНДА",   cond: "комбо 50",                  frames: ["lights"] },
+  { id: "white",  name: "БЕЛАЯ КУРТКА", cond: "пройди на хардкоре",      frames: ["white0", "white1", "white2", "white3"] },
+  { id: "gold",   name: "ЗОЛОТОЙ",    cond: "S на нормальном или хардкоре", frames: ["gold"] }
+];
+let unlocked = new Set(store.get("unlocked", ["base"]));
+unlocked.add("base");
+let skinId = store.get("skin", "base");
+if (!unlocked.has(skinId)) skinId = "base";
+const skin = () => SKINS.find(s => s.id === skinId);
 
 // =====================================================================
 //  СПРАЙТЫ
 // =====================================================================
 const img = src => { const i = new Image(); i.src = src; return i; };
 const bgImg = img("assets/bg.jpg");
-const fedukImg = img("assets/feduk.png");
-const flakeImg = img("assets/flake.png");
+const atlas = img("assets/feduk_atlas.png");
+const itemsImg = img("assets/items.png");
+const ribbonImg = img("assets/ribbon.png");
+const winImg = img("assets/windows.png");
 const loaded = i => i.complete && i.naturalWidth > 0;
+const ATLAS = { cw: 211, ch: 297, cols: 6, idx: { fly0: 0, fly1: 1, fly2: 2, fly3: 3, catch: 4, perfect: 5, hurt: 6, victory: 7,
+  hat0: 8, hat1: 9, hat2: 10, hat3: 11, scarf0: 12, scarf1: 13, scarf2: 14, scarf3: 15, white0: 16, white1: 17, white2: 18, white3: 19, gold: 20, lights: 21 } };
+const ITEM = { flake: 0, gold: 1, perfect: 2, ice: 3, heart: 4, star: 5 };
 
-const SPR = {
-  heart: { px: [
-    ".XX.XX.",
-    "XWXXXXX",
-    "XXXXXXX",
-    ".XXXXX.",
-    "..XXX..",
-    "...X..."], c: { X: "#ff3b5c", W: "#ffd0d8" } },
-  heartHalf: { px: [
-    ".XX.OO.",
-    "XWXOOOO",
-    "XXXOOOO",
-    ".XXOOO.",
-    "..XOO..",
-    "...O..."], c: { X: "#ff3b5c", W: "#ffd0d8", O: "#3a4664" } },
-  heartEmpty: { px: [
-    ".XX.XX.",
-    "X..X..X",
-    "X.....X",
-    ".X...X.",
-    "..X.X..",
-    "...X..."], c: { X: "#5a6a8a" } },
-  ice: { px: [
-    "...X...",
-    "...X...",
-    "..XWX..",
-    "..XWX..",
-    ".XXWXX.",
-    ".XXWXX.",
-    "XXXWXXX",
-    "XXXXXXX",
-    ".XXXXX.",
-    "..XXX.."], c: { X: "#3d8cff", W: "#d8f2ff" } },
-  star: { px: [
-    "...X...",
-    "..XWX..",
-    "XXXWXXX",
-    ".XXXXX.",
-    "..XXX..",
-    ".XX.XX.",
-    "X.....X"], c: { X: "#d47bff", W: "#fff" } }
-};
-function drawSprite(sp, cx, cy, size, g = ctx) {
-  const rows = sp.px.length, cols = sp.px[0].length;
-  const p = size / Math.max(rows, cols);
-  const ox = cx - cols * p / 2, oy = cy - rows * p / 2;
-  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-    const ch = sp.px[y][x];
-    if (ch === ".") continue;
-    g.fillStyle = sp.c[ch];
-    g.fillRect(Math.floor(ox + x * p), Math.floor(oy + y * p), Math.ceil(p), Math.ceil(p));
+function drawFrame(g, name, cx, cy, h) {
+  if (!loaded(atlas)) return;
+  const k = ATLAS.idx[name], sx = (k % ATLAS.cols) * ATLAS.cw, sy = Math.floor(k / ATLAS.cols) * ATLAS.ch;
+  const w = h * ATLAS.cw / ATLAS.ch;
+  g.drawImage(atlas, sx, sy, ATLAS.cw, ATLAS.ch, cx - w / 2, cy - h / 2, w, h);
+}
+function drawItem(g, name, cx, cy, size) {
+  if (!loaded(itemsImg)) { g.fillStyle = "#fff"; g.fillRect(cx - size / 4, cy - size / 4, size / 2, size / 2); return; }
+  g.drawImage(itemsImg, ITEM[name] * 64, 0, 64, 64, cx - size / 2, cy - size / 2, size, size);
+}
+
+// мягкое свечение — заранее нарисованное, чтобы не тормозить на телефонах
+function makeGlow(color) {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d"), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, color); gr.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return c;
+}
+const GLOW = { cyan: makeGlow("rgba(120,220,255,0.75)"), gold: makeGlow("rgba(255,200,60,0.85)"),
+  red: makeGlow("rgba(255,40,80,0.7)"), pink: makeGlow("rgba(255,90,120,0.7)"), purple: makeGlow("rgba(200,110,255,0.8)"), white: makeGlow("rgba(255,255,255,0.8)") };
+
+// пиксельные сердечки для HUD
+const HEART = [".XX.XX.", "XWXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..."];
+function drawHeart(cx, cy, size, fill) {   // fill: 0, 1 (половина), 2
+  const p = size / 7, ox = cx - 3.5 * p, oy = cy - 3 * p;
+  for (let y = 0; y < 6; y++) for (let x = 0; x < 7; x++) {
+    const ch = HEART[y][x]; if (ch === ".") continue;
+    const on = fill === 2 || (fill === 1 && x < 3);
+    ctx.fillStyle = !on ? "#3a4664" : ch === "W" ? "#ffd0d8" : "#ff3b5c";
+    ctx.fillRect(Math.floor(ox + x * p), Math.floor(oy + y * p), Math.ceil(p), Math.ceil(p));
   }
 }
 
-let goldFlake = null;
-function makeGoldFlake() {
-  const c = document.createElement("canvas");
-  c.width = c.height = 200;
-  const g = c.getContext("2d");
-  g.drawImage(flakeImg, 0, 0, 200, 200);
-  g.globalCompositeOperation = "source-atop";
-  g.fillStyle = "rgba(255,190,30,0.78)";
-  g.fillRect(0, 0, 200, 200);
-  goldFlake = c;
-}
-function buildLegend() {
-  const icon = fn => { const c = document.createElement("canvas"); c.width = c.height = 40; const g = c.getContext("2d"); g.imageSmoothingEnabled = false; fn(g); return c.toDataURL(); };
-  const items = [
-    [icon(g => g.drawImage(flakeImg, 0, 0, 40, 40)), "хлопья = ноты песни"],
-    [icon(g => g.drawImage(goldFlake, 0, 0, 40, 40)), "золотые: +3"],
-    [icon(g => drawSprite(SPR.heart, 20, 20, 36, g)), "сердце: +жизнь"],
-    [icon(g => drawSprite(SPR.star, 20, 20, 36, g)), "магия: магнит"],
-    [icon(g => drawSprite(SPR.ice, 20, 20, 36, g)), "сосулька: не лови!"]
-  ];
-  $("legend").innerHTML = items.map(([s, t]) => `<img src="${s}" alt=""><span>${t}</span>`).join("");
-}
-function onFlake() { makeGoldFlake(); buildLegend(); }
-flakeImg.addEventListener("load", onFlake);
-if (loaded(flakeImg)) onFlake();
-
 // =====================================================================
-//  ЗВУК — всё через WebAudio, чтобы часы игры = часы песни
+//  ЗВУК
 // =====================================================================
 const AC = window.AudioContext || window.webkitAudioContext;
 const actx = new AC();
-try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {} // iPhone: играть даже в беззвучном режиме
+try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
 const master = actx.createGain(); master.connect(actx.destination);
 const musicGain = actx.createGain(); musicGain.gain.value = 0.55; musicGain.connect(master);
-const sfxGain = actx.createGain(); sfxGain.gain.value = 1; sfxGain.connect(master);
-
+const sfxGain = actx.createGain(); sfxGain.connect(master);
 let muted = store.get("muted", false);
 let songBuf = null, songSrc = null, songStart = 0;
-let SONG_LEN = 167.3;
 
-fetch("assets/music.mp3")
-  .then(r => r.arrayBuffer())
+fetch("assets/music.mp3").then(r => r.arrayBuffer())
   .then(ab => new Promise((res, rej) => actx.decodeAudioData(ab, res, rej)))
-  .then(buf => { songBuf = buf; SONG_LEN = buf.duration; setReady(); })
-  .catch(() => setReady());   // без музыки всё равно можно играть
-
-function setReady() {
-  const b = $("playBtn");
-  b.disabled = false; b.textContent = "ИГРАТЬ";
-}
+  .then(buf => { songBuf = buf; SONG_END = Math.min(buf.duration - 0.2, LAST_NOTE + 1.2); })
+  .catch(() => {})
+  .then(() => { $("playBtn").disabled = false; $("playBtn").textContent = "ИГРАТЬ"; });
 
 function startSong() {
   if (songSrc) { try { songSrc.stop(); } catch (e) {} songSrc = null; }
@@ -303,18 +332,15 @@ function startSong() {
   if (!songBuf) return;
   songSrc = actx.createBufferSource();
   songSrc.buffer = songBuf;
-  songSrc.loop = true;
   songSrc.connect(musicGain);
   songSrc.start(songStart);
 }
-const songNow = () => actx.currentTime - songStart;   // секунды от начала песни (не обнуляются на повторе)
+function stopSong() { if (songSrc) { try { songSrc.stop(); } catch (e) {} songSrc = null; } }
+const songNow = () => actx.currentTime - songStart;
+const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
 
-function midiHz(m) { return 440 * Math.pow(2, (m - 69) / 12); }
-
-// музыкальная шкатулка
 function bell(midi, when = 0, vol = 0.22) {
-  const t = Math.max(actx.currentTime, when);
-  const f = midiHz(midi);
+  const t = Math.max(actx.currentTime, when), f = midiHz(midi);
   const out = actx.createGain();
   out.gain.setValueAtTime(0.0001, t);
   out.gain.exponentialRampToValueAtTime(vol, t + 0.004);
@@ -323,28 +349,42 @@ function bell(midi, when = 0, vol = 0.22) {
   [[1, 1, "sine"], [2, 0.35, "sine"], [3.01, 0.12, "triangle"]].forEach(([mul, amp, type]) => {
     const o = actx.createOscillator(), g = actx.createGain();
     o.type = type; o.frequency.value = f * mul;
-    g.gain.setValueAtTime(amp, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9 / mul);
-    o.connect(g); g.connect(out);
-    o.start(t); o.stop(t + 1);
+    g.gain.setValueAtTime(amp, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9 / mul);
+    o.connect(g); g.connect(out); o.start(t); o.stop(t + 1);
   });
 }
 function tone(freq, dur, type = "square", vol = 0.05, slide = 0, delay = 0) {
   const t = actx.currentTime + delay;
   const o = actx.createOscillator(), g = actx.createGain();
-  o.type = type;
-  o.frequency.setValueAtTime(freq, t);
+  o.type = type; o.frequency.setValueAtTime(freq, t);
   if (slide) o.frequency.exponentialRampToValueAtTime(freq * slide, t + dur);
-  g.gain.setValueAtTime(vol, t);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(sfxGain);
-  o.start(t); o.stop(t + dur + 0.02);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(sfxGain); o.start(t); o.stop(t + dur + 0.02);
+}
+// протяжный звук для длинной ноты
+let sustain = null;
+function sustainOn(midi) {
+  sustainOff();
+  const o = actx.createOscillator(), o2 = actx.createOscillator(), g = actx.createGain();
+  o.type = "triangle"; o.frequency.value = midiHz(midi);
+  o2.type = "sine"; o2.frequency.value = midiHz(midi) * 2.003;
+  g.gain.setValueAtTime(0.0001, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.07, actx.currentTime + 0.08);
+  o.connect(g); o2.connect(g); g.connect(sfxGain); o.start(); o2.start();
+  sustain = { o, o2, g };
+}
+function sustainOff() {
+  if (!sustain) return;
+  const { o, o2, g } = sustain, t = actx.currentTime;
+  g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+  o.stop(t + 0.2); o2.stop(t + 0.2); sustain = null;
 }
 const sfx = {
-  heart() { [76, 81, 88].forEach((m, i) => bell(m, actx.currentTime + i * 0.07, 0.18)); },
-  star()  { [81, 85, 88, 93].forEach((m, i) => bell(m, actx.currentTime + i * 0.05, 0.15)); },
-  miss()  { tone(140, 0.18, "triangle", 0.12, 0.6); },
+  miss()  { tone(150, 0.16, "triangle", 0.1, 0.6); },
   hurt()  { tone(160, 0.3, "square", 0.06, 0.4); tone(90, 0.35, "sawtooth", 0.05, 0.5, 0.03); },
+  heart() { [76, 81, 88].forEach((m, i) => bell(m, actx.currentTime + i * 0.07, 0.16)); },
+  star()  { [81, 85, 88, 93].forEach((m, i) => bell(m, actx.currentTime + i * 0.05, 0.14)); },
+  snow()  { [69, 73, 76, 81, 85].forEach((m, i) => bell(m + 12, actx.currentTime + i * 0.05, 0.1)); },
   win()   { [69, 73, 76, 81, 85, 88].forEach((m, i) => bell(m, actx.currentTime + i * EIGHTH, 0.2)); },
   lose()  { [76, 73, 69, 64].forEach((m, i) => bell(m, actx.currentTime + i * BEAT * 0.5, 0.2)); }
 };
@@ -359,81 +399,77 @@ applyMute();
 // =====================================================================
 //  СОСТОЯНИЕ
 // =====================================================================
-let state = "menu";          // menu | play | paused | over
-let score = 0, hp = MAX_HP;
-let combo = 0, bestCombo = 0, caught = 0, missed = 0;
-let endless = false;
-let best = store.get("best", 0);
-let time = 0;
+let state = "menu";               // menu | play | paused | over
+let score, hp, combo, bestCombo, nPerfect, nGood, nMiss, holdScore;
+let chartIdx, plan, lastPlanned, failed;
 let magnetT = 0, shakeT = 0, hurtT = 0, catchPulse = 0, flashText = null;
-let chartIdx = 0, chartCycle = 0, lastSpawnNote = -99, specialT = 4;
-
-const items = [];
-const particles = [];
-const floaters = [];
+let emo = null, emoT = 0;          // эмоция Федука
+let snowfall = false, aurora = 0, holding = null, time = 0;
+let judge = null;                  // последняя оценка попадания (надпись)
+const items = [], particles = [], floaters = [];
 const ambient = [];
-for (let i = 0; i < 45; i++) ambient.push({ x: Math.random() * W, y: Math.random() * H, s: 1 + Math.random() * 2, v: 12 + Math.random() * 30 });
+for (let i = 0; i < 50; i++) ambient.push({ x: Math.random() * W, y: Math.random() * H, s: 1 + Math.random() * 2, v: 12 + Math.random() * 30 });
 
-const player = { x: W / 2 - 35, y: H * 0.18, w: 70, h: 110, speed: 520, vx: 0, tilt: 0 };
+const player = { x: W / 2 - 35, y: H * 0.17, w: 70, h: 110, speed: 520, vx: 0, tilt: 0 };
 const CATCH_Y = player.y + player.h * 0.45;
-const HIT_WINDOW = 0.11;      // секунд до/после ноты
+const pcx = () => player.x + player.w / 2;
 
-function difficulty() { return Math.min(1, score / (endless ? 400 : 120)); }
-function multiplier() { return combo >= 15 ? 2 : 1; }
-function leadTime() { return 2.1 - difficulty() * 0.6; }      // сколько летит хлопья
-function minGap() {                                             // плотность нот
-  const d = difficulty();
-  return d < 0.25 ? BEAT * 2 : d < 0.6 ? BEAT : d < 0.9 ? BEAT * 0.75 : EIGHTH;
-}
-
-// нота → место на экране: выше нота — правее. Мелодию видно глазами.
-function noteX(midi, absT) {
-  const section = Math.floor(absT / (BEAT * 32));               // каждые 8 тактов сдвиг
+function noteX(midi, t) {
+  const section = Math.floor(t / (BEAT * 32));
   const shift = Math.sin(section * 2.3) * 55;
-  const x = 60 + (midi - 64) / 11 * 240 + shift;
-  return Math.max(28, Math.min(W - 28, x));
+  return clamp(60 + (midi - 64) / 11 * 240 + shift, 36, W - 36);
 }
+const isGold = i => CHART_K[i] % 32 === 0;
 
 // =====================================================================
-//  СПАВН
+//  ПЛАНИРОВЩИК: заранее раскладывает ноты, длинные ноты, сосульки и бонусы
+//  Всё прилетает на линию ловли ровно в свою долю.
 // =====================================================================
-function spawnChartNotes() {
-  const now = songNow();
-  const lead = leadTime();
-  for (let guard = 0; guard < 50; guard++) {
-    const absT = chartCycle * SONG_LEN + noteTime(chartIdx);
-    if (absT - now > lead) break;
-    const midi = CHART_P[chartIdx];
-    const k = CHART_K[chartIdx];
-    if (absT > now + 0.3 && absT - lastSpawnNote >= minGap() - 0.01) {
-      lastSpawnNote = absT;
-      const gold = k % 32 === 0;           // первая доля каждой 4-тактовой фразы
-      items.push({
-        type: gold ? "gold" : "flake", chart: true, midi, t: absT, lead,
-        x: noteX(midi, absT), baseX: 0, y: H + 30, r: 12,
-        rot: Math.random() * Math.PI, spin: (Math.random() - 0.5) * 2,
-        sway: Math.random() * Math.PI * 2, done: false
-      });
-      items[items.length - 1].baseX = items[items.length - 1].x;
+function planAhead(now) {
+  const horizon = now + L.lead + 3;
+  while (chartIdx < NOTE_T.length && NOTE_T[chartIdx] < horizon) {
+    const i = chartIdx++;
+    const t = NOTE_T[i];
+    if (t < 1.0) continue;
+    const gap = inChorus(t) ? L.chorusGap : L.gap;
+    if (lastPlanned && t - lastPlanned.t < gap - 0.005) continue;
+    let x = noteX(CHART_P[i], t);
+    if (lastPlanned) {                      // не требовать невозможной скорости
+      const maxDx = L.maxSpeed * (t - lastPlanned.t);
+      x = clamp(x, lastPlanned.x - maxDx, lastPlanned.x + maxDx);
     }
-    chartIdx++;
-    if (chartIdx >= CHART_K.length) { chartIdx = 0; chartCycle++; }
+    // длинная нота: тянется до следующей ноты, которая попадёт в игру
+    let holdEnd = 0;
+    if (CHART_D[i] >= 0.6) {
+      let j = i + 1; while (j < NOTE_T.length && NOTE_T[j] - t < gap) j++;
+      const next = j < NOTE_T.length ? NOTE_T[j] : t + 3;
+      const len = Math.min(CHART_D[i] * 1.15, next - t - EIGHTH);
+      if (len >= 0.45) holdEnd = t + len;
+    }
+    // особые предметы в паузах между нотами
+    if (lastPlanned && t - lastPlanned.t >= BEAT * 1.9 && !lastPlanned.holdEnd) {
+      const tm = OFF + Math.round(((lastPlanned.t + t) / 2 - OFF) / EIGHTH) * EIGHTH;
+      const r = Math.random();
+      if (r < L.iceChance) {
+        const side = Math.random() < 0.5 ? -1 : 1;
+        plan.push({ kind: "ice", t: tm, x: clamp(lastPlanned.x + side * (6 + Math.random() * 16), 30, W - 30) });
+      } else if (r < L.iceChance + 0.07) {
+        plan.push({ kind: "heart", t: tm, x: (lastPlanned.x + x) / 2 });
+      } else if (r < L.iceChance + 0.11 && levelKey !== "easy") {
+        plan.push({ kind: "star", t: tm, x: (lastPlanned.x + x) / 2 });
+      }
+    }
+    plan.push({ kind: "note", t, x, i, midi: CHART_P[i], gold: isGold(i), holdEnd });
+    lastPlanned = { t: holdEnd || t, x, holdEnd };
   }
-}
-
-function spawnSpecial() {
-  const opts = [];
-  if (score >= 12) opts.push("ice", "ice");
-  if (hp < MAX_HP) opts.push("heart");
-  if (score > 15 && magnetT <= 0) opts.push("star");
-  if (!opts.length) return;
-  const type = opts[Math.floor(Math.random() * opts.length)];
-  items.push({
-    type, chart: false,
-    x: Math.random() * (W - 60) + 30, y: H + 24, r: 13,
-    speed: 150 + Math.random() * 80 + difficulty() * 80,
-    offset: Math.random() * Math.PI * 2, amp: 4 + Math.random() * 3, wobble: 1 + Math.random()
-  });
+  plan.sort((a, b) => a.t - b.t);
+  // выпустить на экран то, что пора
+  while (plan.length && plan[0].t - now <= L.lead) {
+    const p = plan.shift();
+    if (p.t < now + 0.05) continue;
+    items.push(Object.assign(p, { y: H + 30, rot: Math.random() * Math.PI, spin: (Math.random() - 0.5) * 2,
+      sway: Math.random() * 6.28, baseX: p.x, done: false, state: "fly" }));
+  }
 }
 
 // =====================================================================
@@ -445,128 +481,129 @@ function burst(x, y, color, n = 10, spd = 140) {
     particles.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, life: 0.5 + Math.random() * 0.4, t: 0, c: color, s: 2 + Math.floor(Math.random() * 3) });
   }
 }
-function floatText(x, y, text, color = "#fff", size = 10) { floaters.push({ x, y, text, color, size, t: 0, life: 0.9 }); }
+function floatText(x, y, text, color = "#fff", size = 9) { floaters.push({ x, y, text, color, size, t: 0, life: 0.8 }); }
+function setEmo(name, dur) { if (skinId !== "base") return; emo = name; emoT = dur; }
 
 // =====================================================================
 //  ЛОГИКА
 // =====================================================================
 function damage(n) {
-  hp -= n; combo = 0; hurtT = 0.3 + n * 0.1; shakeT = 0.1 + n * 0.1;
-  if (hp <= 0) endGame(false);
+  hp -= n; combo = 0; hurtT = 0.3 + n * 0.1; shakeT = 0.12 + n * 0.08;
+  setEmo("hurt", 0.45);
+  if (hp <= 0) finish(false);
 }
 
-function catchChart(f) {
-  f.done = true;
-  combo++; caught++;
-  bestCombo = Math.max(bestCombo, combo);
-  if (combo === 15 || combo === 50) flashText = { text: "КОМБО " + combo + "!", t: 0 };
-  const m = multiplier();
-  const pts = f.type === "gold" ? 3 : 1;
-  score += pts;
-  catchPulse = 1;
-  // нота мелодии ровно в свою долю
+function judgeNote(f, now) {
+  const dx = Math.abs(f.x - pcx());
   const when = songStart + f.t;
-  bell(f.midi, when);
-  if (f.type === "gold") { bell(f.midi + 7, when, 0.12); bell(f.midi + 12, when, 0.12); }
-  if (m >= 2) bell(f.midi + 12, when, 0.06);
-  burst(f.x, f.y, f.type === "gold" ? "#ffd34d" : "#dff3ff", f.type === "gold" ? 16 : 8);
-  floatText(f.x, f.y - 6, "+" + pts, f.type === "gold" ? "#ffd34d" : m > 1 ? "#9fe7ff" : "#fff", f.type === "gold" ? 12 : 9);
-  if (!endless && score >= WIN_SCORE) endGame(true);
+  if (dx <= L.perfect || dx <= L.good) {
+    const perfect = dx <= L.perfect;
+    perfect ? nPerfect++ : nGood++;
+    combo++; bestCombo = Math.max(bestCombo, combo);
+    if (combo % 20 === 0 && hp < MAX_HP) { hp++; floatText(pcx(), CATCH_Y - 60, "+♥", "#ff6b81", 9); }
+    const mult = (f.gold ? 2 : 1) * (snowfall ? 2 : 1);
+    const pts = (perfect ? 300 : 100) * mult;
+    score += pts;
+    catchPulse = 1;
+    bell(f.midi, when, perfect ? 0.24 : 0.16);
+    if (perfect) bell(f.midi + 12, when, 0.06);
+    if (f.gold) bell(f.midi + 19, when, 0.06);
+    burst(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#bff4ff" : "#dff3ff", perfect ? 14 : 7, perfect ? 190 : 130);
+    judge = { text: perfect ? "ИДЕАЛЬНО" : "ХОРОШО", color: perfect ? "#7ff0ff" : "#ffffff", t: 0 };
+    floatText(f.x, CATCH_Y - 20, "+" + pts, f.gold ? "#ffd34d" : "#fff", 8);
+    setEmo(perfect ? "perfect" : "catch", 0.22);
+    if (combo === 25 || combo === 50 || combo === 100) flashText = { text: "КОМБО " + combo + "!", t: 0 };
+    if (f.holdEnd) { holding = f; f.state = "hold"; sustainOn(f.midi); flashText = flashText || null; }
+    else f.state = "gone";
+  } else {
+    nMiss++;
+    f.state = "missed";
+    judge = { text: "МИМО", color: "#ff6b81", t: 0 };
+    sfx.miss();
+    damage(L.miss);
+  }
 }
 
-function catchSpecial(it) {
-  if (it.type === "ice") {
-    burst(it.x, it.y, "#7fc4ff", 14, 180);
-    floatText(it.x, it.y, "АЙ!", "#ff6b81", 12);
-    sfx.hurt();
-    if (navigator.vibrate) navigator.vibrate(80);
-    damage(2);
-  } else if (it.type === "heart") {
-    hp = Math.min(MAX_HP, hp + 2);
-    burst(it.x, it.y, "#ff3b5c", 12);
-    floatText(it.x, it.y, "+♥", "#ff6b81", 12);
-    sfx.heart();
-  } else if (it.type === "star") {
-    magnetT = 6;
-    burst(it.x, it.y, "#d47bff", 18, 200);
-    flashText = { text: "МАГИЯ!", t: 0 };
-    sfx.star();
-  }
+function judgeSpecial(f) {
+  const dx = Math.abs(f.x - pcx());
+  if (f.kind === "ice") {
+    if (dx < 24) {
+      f.state = "gone";
+      burst(f.x, CATCH_Y, "#7fc4ff", 14, 180);
+      floatText(f.x, CATCH_Y - 10, "АЙ!", "#ff6b81", 11);
+      sfx.hurt();
+      if (navigator.vibrate) navigator.vibrate(80);
+      damage(L.ice);
+    } else f.state = "dodged";
+  } else if (dx < 34) {
+    f.state = "gone";
+    if (f.kind === "heart") { hp = Math.min(MAX_HP, hp + 2); burst(f.x, CATCH_Y, "#ff3b5c", 12); floatText(f.x, CATCH_Y - 10, "+♥", "#ff6b81", 11); sfx.heart(); }
+    if (f.kind === "star") { magnetT = 6; burst(f.x, CATCH_Y, "#d47bff", 18, 200); flashText = { text: "МАГИЯ!", t: 0 }; sfx.star(); }
+  } else f.state = "dodged";
 }
 
 function update(dt) {
   time += dt;
-  for (const a of ambient) {
-    a.y -= a.v * dt;
-    if (a.y < -4) { a.y = H + 4; a.x = Math.random() * W; }
-  }
+  for (const a of ambient) { a.y -= a.v * dt * (snowfall ? 2.2 : 1); if (a.y < -4) { a.y = H + 4; a.x = Math.random() * W; } }
   updateFx(dt);
+  aurora += ((snowfall || state === "over" && !failed ? 1 : 0) - aurora) * Math.min(1, dt * 1.5);
   if (state !== "play") return;
 
   // управление
   const prevX = player.x;
   if (keys.left) player.x -= player.speed * dt;
   if (keys.right) player.x += player.speed * dt;
-  if (pointer.active && pointer.x !== null) {
-    const target = pointer.x - player.w / 2;
-    player.x += (target - player.x) * Math.min(1, dt * 14);
-  }
-  player.x = Math.max(0, Math.min(W - player.w, player.x));
+  if (pointer.active && pointer.x !== null) player.x += (pointer.x - player.w / 2 - player.x) * Math.min(1, dt * 16);
+  player.x = clamp(player.x, 0, W - player.w);
   player.vx = dt > 0 ? (player.x - prevX) / dt : 0;
-  player.tilt += (Math.max(-0.22, Math.min(0.22, player.vx / 1800)) - player.tilt) * Math.min(1, dt * 10);
-
-  spawnChartNotes();
-  specialT -= dt;
-  if (specialT <= 0) { specialT = 3 + Math.random() * 3.5; spawnSpecial(); }
-  if (magnetT > 0) magnetT -= dt;
+  player.tilt += (clamp(player.vx / 1800, -0.22, 0.22) - player.tilt) * Math.min(1, dt * 10);
 
   const now = songNow();
-  const pcx = player.x + player.w / 2;
+  // Снегопад в припеве
+  const sf = inChorus(now);
+  if (sf && !snowfall) { flashText = { text: "СНЕГОПАД! x2", t: 0 }; sfx.snow(); }
+  snowfall = sf;
+
+  planAhead(now);
+  if (magnetT > 0) magnetT -= dt;
+  if (emoT > 0) { emoT -= dt; if (emoT <= 0) emo = null; }
+  const cx = pcx();
 
   for (let i = items.length - 1; i >= 0; i--) {
     const f = items[i];
-
-    if (f.chart) {
-      // позиция считается от часов песни — хлопья всегда прилетают в долю
-      const left = f.t - now;
-      f.y = CATCH_Y + (H + 30 - CATCH_Y) * (left / f.lead);
-      f.rot += f.spin * dt;
-      if (magnetT > 0 && !f.done && left < 1.2) f.baseX += (pcx - f.baseX) * Math.min(1, dt * 6);
-      f.x = f.baseX + Math.sin(time * 3 + f.sway) * 6 * Math.max(0, Math.min(1, left / f.lead));
-
-      if (!f.done && Math.abs(left) <= HIT_WINDOW && Math.abs(f.x - pcx) < player.w * 0.5 + 6) {
-        items.splice(i, 1);
-        catchChart(f);
-        if (state !== "play") return;
-        continue;
-      }
-      if (!f.done && left < -HIT_WINDOW) {
-        f.done = true; f.missed = true;
-        missed++;
-        floatText(f.x, CATCH_Y - 30, "мимо", "#ff6b81", 8);
-        sfx.miss();
-        damage(1);
+    const left = f.t - now;
+    f.y = CATCH_Y + (H + 30 - CATCH_Y) * (left / L.lead);
+    f.rot += f.spin * dt;
+    if (f.state === "fly") {
+      if (magnetT > 0 && f.kind === "note" && left < 0.8) f.baseX += (cx - f.baseX) * Math.min(1, dt * 7);
+      f.x = f.baseX + Math.sin(time * 3 + f.sway) * 5 * clamp(left / L.lead, 0, 1);
+      if (left <= 0) {
+        f.x = f.baseX;
+        if (f.kind === "note") judgeNote(f, now); else judgeSpecial(f);
         if (state !== "play") return;
       }
-      if (f.y < -30) items.splice(i, 1);
-      continue;
     }
-
-    // особые предметы летят сами по себе
-    f.offset += f.wobble * dt;
-    f.x += Math.sin(f.offset) * f.amp * dt * 8;
-    f.y -= f.speed * dt;
-    f.x = Math.max(f.r, Math.min(W - f.r, f.x));
-    const hitX = Math.abs(f.x - pcx) < player.w * 0.42 + f.r * 0.4;
-    const hitY = f.y < player.y + player.h - 10 && f.y > player.y + 8;
-    if (hitX && hitY) {
-      items.splice(i, 1);
-      catchSpecial(f);
-      if (state !== "play") return;
-      continue;
+    if (f.state === "hold") {
+      // держать Федука под снежной лентой
+      if (now >= f.holdEnd) {
+        f.state = "gone"; holding = null; sustainOff();
+        const bonus = 200 * (snowfall ? 2 : 1); score += bonus;
+        floatText(f.x, CATCH_Y - 20, "+" + bonus, "#9fe7ff", 9);
+        burst(f.x, CATCH_Y, "#bff4ff", 12, 160);
+      } else if (Math.abs(f.x - cx) <= L.good + 6) {
+        holdScore += dt; score += Math.round(dt * 400);
+        if (Math.random() < dt * 30) burst(f.x + (Math.random() - 0.5) * 16, CATCH_Y, "#dff3ff", 1, 90);
+      } else {
+        f.state = "broken"; holding = null; sustainOff();
+        judge = { text: "СОРВАЛОСЬ", color: "#ffb0c0", t: 0 };
+      }
     }
-    if (f.y < -30) items.splice(i, 1);
+    const tailY = f.holdEnd ? CATCH_Y + (H + 30 - CATCH_Y) * ((f.holdEnd - now) / L.lead) : f.y;
+    if (f.state !== "hold" && tailY < -40 && f.y < -40) items.splice(i, 1);
+    else if (f.state === "gone" && !f.holdEnd) items.splice(i, 1);
   }
+
+  if (now >= SONG_END) finish(true);
 }
 
 function updateFx(dt) {
@@ -575,103 +612,170 @@ function updateFx(dt) {
     p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy -= 60 * dt; p.vx *= 0.98;
     if (p.t > p.life) particles.splice(i, 1);
   }
-  for (let i = floaters.length - 1; i >= 0; i--) {
-    const f = floaters[i]; f.t += dt; f.y -= 40 * dt;
-    if (f.t > f.life) floaters.splice(i, 1);
-  }
-  if (flashText) { flashText.t += dt; if (flashText.t > 1.2) flashText = null; }
-  shakeT = Math.max(0, shakeT - dt);
-  hurtT = Math.max(0, hurtT - dt);
-  catchPulse = Math.max(0, catchPulse - dt * 6);
+  for (let i = floaters.length - 1; i >= 0; i--) { const f = floaters[i]; f.t += dt; f.y -= 40 * dt; if (f.t > f.life) floaters.splice(i, 1); }
+  if (flashText) { flashText.t += dt; if (flashText.t > 1.3) flashText = null; }
+  if (judge) { judge.t += dt; if (judge.t > 0.5) judge = null; }
+  shakeT = Math.max(0, shakeT - dt); hurtT = Math.max(0, hurtT - dt); catchPulse = Math.max(0, catchPulse - dt * 6);
 }
 
 // =====================================================================
 //  ОТРИСОВКА
 // =====================================================================
+function beats() { return songSrc || state !== "menu" ? (songNow() - OFF) / BEAT : time * 2.3; }
 function beatPulse() {
-  if (state === "menu" || !songSrc) return 0;
-  const b = (songNow() - GRID_OFFSET) / BEAT;
-  if (b < 0) return 0;
-  return Math.exp(-(b - Math.floor(b)) * 7);
+  if (state === "menu") return 0;
+  const b = beats(); if (b < 0) return 0;
+  return Math.exp(-(b - Math.floor(b)) * 6);
 }
 
-function drawBG(pulse) {
-  if (loaded(bgImg)) ctx.drawImage(bgImg, 0, 0, W, H);
-  else { ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, H); }
-  ctx.fillStyle = `rgba(220,235,255,${0.45 + pulse * 0.4})`;
-  for (const a of ambient) ctx.fillRect(Math.floor(a.x), Math.floor(a.y), a.s, a.s);
-  if (pulse > 0) { ctx.fillStyle = `rgba(120,170,255,${pulse * 0.05})`; ctx.fillRect(0, 0, W, H); }
-}
-
-function drawTargets() {
-  // подсказки на линии ловли: куда прилетит следующая нота
-  if (state !== "play") return;
-  const now = songNow();
-  for (const f of items) {
-    if (!f.chart || f.done) continue;
-    const left = f.t - now;
-    if (left > 0.9 || left < 0) continue;
-    const k = left / 0.9;
-    ctx.strokeStyle = f.type === "gold" ? `rgba(255,211,77,${0.7 - k * 0.6})` : `rgba(200,230,255,${0.6 - k * 0.5})`;
-    ctx.lineWidth = 2;
-    const r = 8 + k * 22;
-    ctx.strokeRect(Math.floor(f.x - r), Math.floor(CATCH_Y - r), Math.floor(r * 2), Math.floor(r * 2));
+// северное сияние: рисуем в маленький холст и растягиваем — получается пиксельно
+const auroraCv = document.createElement("canvas"); auroraCv.width = 90; auroraCv.height = 100;
+const actxA = auroraCv.getContext("2d");
+const AUR_BANDS = [["61,255,168", 30, 0], ["73,215,255", 44, 2.1], ["183,123,255", 22, 4.2]].map(([col, base, ph]) => {
+  const c = document.createElement("canvas"); c.width = 1; c.height = 26;
+  const g = c.getContext("2d"), gr = g.createLinearGradient(0, 0, 0, 26);
+  gr.addColorStop(0, `rgba(${col},0)`); gr.addColorStop(1, `rgba(${col},0.55)`);
+  g.fillStyle = gr; g.fillRect(0, 0, 1, 26);
+  return { strip: c, base, ph };
+});
+function drawAurora(g, w, h, level, t) {
+  if (level < 0.02) return;
+  actxA.clearRect(0, 0, 90, 100);
+  for (const { strip, base, ph } of AUR_BANDS) {
+    for (let x = 0; x < 90; x++) {
+      const y = base + Math.sin(x * 0.11 + t * 0.7 + ph) * 8 + Math.sin(x * 0.29 - t * 1.1 + ph) * 3;
+      const len = Math.round(18 + Math.sin(x * 0.2 + t + ph) * 8);
+      actxA.drawImage(strip, x, Math.floor(y - len), 1, len);
+    }
   }
+  g.save(); g.globalAlpha = level * 0.5; g.globalCompositeOperation = "lighter";
+  g.imageSmoothingEnabled = false;
+  g.drawImage(auroraCv, 0, -h * 0.04, w, h * 0.5);
+  g.restore();
 }
 
-function drawItems() {
-  for (const f of items) {
-    ctx.save();
-    ctx.translate(f.x, f.y);
-    if (f.chart) {
-      if (f.missed) ctx.globalAlpha = 0.35;
-      ctx.rotate(f.rot);
-      const src = f.type === "gold" && goldFlake ? goldFlake : flakeImg;
-      if (f.type === "gold") { ctx.shadowColor = "#ffcf3a"; ctx.shadowBlur = 12; }
-      if (loaded(flakeImg)) ctx.drawImage(src, -f.r, -f.r, f.r * 2, f.r * 2);
-      else { ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(0, 0, f.r, 0, Math.PI * 2); ctx.fill(); }
+function drawBG(pulse, now) {
+  if (loaded(bgImg)) ctx.drawImage(bgImg, 0, 0, W, H); else { ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, H); }
+  // рассвет к концу песни
+  const prog = state === "menu" ? 0 : clamp(now / SONG_END, 0, 1);
+  const dawn = state === "over" && !failed ? 1 : smooth(0.8, 1.0, prog);
+  if (dawn > 0) {
+    const gr = ctx.createLinearGradient(0, H * 0.75, 0, 0);
+    gr.addColorStop(0, `rgba(255,140,90,${0.55 * dawn})`);
+    gr.addColorStop(0.45, `rgba(255,120,160,${0.3 * dawn})`);
+    gr.addColorStop(1, `rgba(120,170,255,${0.15 * dawn})`);
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+  }
+  drawAurora(ctx, W, H, aurora, time);
+  // звёзды/хлопья на фоне
+  ctx.fillStyle = `rgba(220,235,255,${0.45 + pulse * 0.35})`;
+  for (const a of ambient) ctx.fillRect(Math.floor(a.x), Math.floor(a.y), a.s, a.s);
+  // окна мигают в бит, в припеве — волной
+  if (loaded(winImg) && state !== "menu") {
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    if (snowfall) {
+      const b = beats(), strips = 12, sw = winImg.naturalWidth / strips;
+      for (let s = 0; s < strips; s++) {
+        const ph = (b * 0.5 - s / strips) * Math.PI * 2;
+        ctx.globalAlpha = 0.15 + 0.6 * Math.max(0, Math.cos(ph)) ;
+        ctx.drawImage(winImg, s * sw, 0, sw, winImg.naturalHeight, s * W / strips, 0, W / strips, H);
+      }
     } else {
-      const s = 1 + Math.sin(time * 6 + f.offset) * 0.08;
-      ctx.scale(s, s);
-      if (f.type === "ice") { ctx.shadowColor = "#ff2d55"; ctx.shadowBlur = 10 + Math.sin(time * 10) * 4; }
-      if (f.type === "star") { ctx.shadowColor = "#d47bff"; ctx.shadowBlur = 14; }
-      if (f.type === "heart") { ctx.shadowColor = "#ff3b5c"; ctx.shadowBlur = 10; }
-      drawSprite(SPR[f.type], 0, 0, f.type === "ice" ? 30 : 26);
+      ctx.globalAlpha = 0.08 + pulse * 0.4;
+      ctx.drawImage(winImg, 0, 0, W, H);
     }
     ctx.restore();
   }
 }
 
-function drawPlayer(pulse) {
-  // Федук качается в такт
-  const beats = songSrc ? (songNow() - GRID_OFFSET) / BEAT : time * 2.3;
-  const bobY = Math.sin(beats * Math.PI) * 3;
-  const bobX = Math.sin(time * 1.7) * 1.2;
-  const cx = player.x + player.w / 2 + bobX;
-  const cy = player.y + player.h / 2 + bobY;
-  const s = 1 + catchPulse * 0.07 + pulse * 0.02;
+function drawTargets(now) {
+  if (state !== "play") return;
+  for (const f of items) {
+    if (f.state !== "fly" || f.kind !== "note") continue;
+    const left = f.t - now;
+    if (left > 0.9 || left < 0) continue;
+    const k = left / 0.9, r = 7 + k * 22;
+    ctx.strokeStyle = f.gold ? `rgba(255,211,77,${0.75 - k * 0.6})` : `rgba(200,230,255,${0.6 - k * 0.5})`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(Math.floor(f.x - r), Math.floor(CATCH_Y - r), Math.floor(r * 2), Math.floor(r * 2));
+  }
+}
 
+function drawItems(now) {
+  // сначала ленты длинных нот
+  for (const f of items) {
+    if (!f.holdEnd || f.state === "gone" && !f.holdEnd) continue;
+    const headY = f.state === "hold" ? CATCH_Y : f.y;
+    const tailY = CATCH_Y + (H + 30 - CATCH_Y) * ((f.holdEnd - now) / L.lead);
+    if (tailY <= headY || f.state === "gone") continue;
+    ctx.save();
+    ctx.globalAlpha = f.state === "broken" || f.state === "missed" ? 0.25 : f.state === "hold" ? 1 : 0.85;
+    if (loaded(ribbonImg)) {
+      const rw = 22, rh = rw * ribbonImg.naturalHeight / ribbonImg.naturalWidth;
+      const off = (time * 120) % rh;
+      ctx.beginPath(); ctx.rect(f.x - rw / 2, headY, rw, tailY - headY); ctx.clip();
+      for (let y = headY - off; y < tailY; y += rh) ctx.drawImage(ribbonImg, f.x - rw / 2, y, rw, rh);
+    } else { ctx.fillStyle = "rgba(180,230,255,.6)"; ctx.fillRect(f.x - 8, headY, 16, tailY - headY); }
+    ctx.restore();
+  }
+  for (const f of items) {
+    if (f.state === "gone" || f.state === "hold") continue;
+    const faded = f.state === "missed" || f.state === "dodged" || f.state === "broken";
+    ctx.save();
+    ctx.globalAlpha = faded ? 0.3 : 1;
+    if (f.kind === "note") {
+      const glow = f.gold ? GLOW.gold : (combo >= 15 || snowfall) ? GLOW.cyan : null;
+      if (glow && !faded) ctx.drawImage(glow, f.x - 24, f.y - 24, 48, 48);
+      ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      drawItem(ctx, f.gold ? "gold" : snowfall ? "perfect" : "flake", 0, 0, f.gold ? 30 : 26);
+    } else {
+      const s = 1 + Math.sin(time * 6 + f.sway) * 0.08;
+      const glow = f.kind === "ice" ? GLOW.red : f.kind === "heart" ? GLOW.pink : GLOW.purple;
+      if (!faded) ctx.drawImage(glow, f.x - 24, f.y - 24, 48, 48);
+      ctx.translate(f.x, f.y); ctx.scale(s, s);
+      drawItem(ctx, f.kind, 0, 0, f.kind === "ice" ? 34 : 28);
+    }
+    ctx.restore();
+  }
+}
+
+function fedukFrame() {
+  if (state === "over" && !failed) return skinId === "base" ? "victory" : skin().frames[0];
+  if (emo) return emo;
+  const fr = skin().frames;
+  if (fr.length === 1) return fr[0];
+  const idx = Math.floor(beats() * 4) % 4;
+  return fr[(idx + 4) % 4];
+}
+
+function drawPlayer(pulse) {
+  const b = beats();
+  const single = skin().frames.length === 1;
+  const bobY = Math.sin(b * Math.PI * (single ? 1 : 0.5)) * (single ? 4 : 2);
+  const cx = pcx() + Math.sin(time * 1.7) * 1.2, cy = player.y + player.h / 2 + bobY;
+  const s = 1 + catchPulse * 0.06 + pulse * 0.015;
+  // ореол при комбо 30+ и в Снегопаде
+  if (combo >= 30 || snowfall) {
+    const k = combo >= 30 ? 1 : 0.6, r = 70 + Math.sin(time * 4) * 6;
+    ctx.save(); ctx.globalAlpha = 0.45 * k + pulse * 0.2;
+    ctx.drawImage(snowfall ? GLOW.gold : GLOW.cyan, cx - r, cy - r, r * 2, r * 2); ctx.restore();
+  }
   if (magnetT > 0) {
     const a = Math.min(1, magnetT) * (0.35 + Math.sin(time * 8) * 0.1);
-    ctx.strokeStyle = `rgba(212,123,255,${a})`;
-    ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(cx, cy, 70 + Math.sin(time * 5) * 6, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = `rgba(212,123,255,${a})`; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(cx, cy, 72 + Math.sin(time * 5) * 6, 0, Math.PI * 2); ctx.stroke();
   }
   ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(player.tilt);
-  ctx.scale(s, s);
+  ctx.translate(cx, cy); ctx.rotate(player.tilt); ctx.scale(s, s);
   if (hurtT > 0 && Math.floor(hurtT * 20) % 2 === 0) ctx.globalAlpha = 0.45;
-  if (loaded(fedukImg)) ctx.drawImage(fedukImg, -player.w / 2, -player.h / 2, player.w, player.h);
-  else { ctx.fillStyle = "#f55"; ctx.fillRect(-player.w / 2, -player.h / 2, player.w, player.h); }
+  drawFrame(ctx, fedukFrame(), 0, 0, 150);
   ctx.restore();
 }
 
 function drawFx() {
   for (const p of particles) {
     ctx.globalAlpha = Math.max(0, 1 - p.t / p.life);
-    ctx.fillStyle = p.c;
-    ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.s, p.s);
+    ctx.fillStyle = p.c; ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.s, p.s);
   }
   ctx.globalAlpha = 1;
   for (const f of floaters) {
@@ -681,47 +785,51 @@ function drawFx() {
   ctx.globalAlpha = 1;
 }
 
-function pixelText(text, x, y, size, color, align) {
-  ctx.font = `${size}px "Press Start 2P", monospace`;
-  if (align) ctx.textAlign = align;
-  ctx.fillStyle = "rgba(0,0,0,0.7)";
-  ctx.fillText(text, x + 1, y + 2);
-  ctx.fillStyle = color;
-  ctx.fillText(text, x, y);
+function pixelText(text, x, y, size, color, align, g = ctx) {
+  g.font = `${size}px "Press Start 2P", monospace`;
+  if (align) g.textAlign = align;
+  g.fillStyle = "rgba(0,0,0,0.7)"; g.fillText(text, x + Math.max(1, size / 10), y + Math.max(2, size / 7));
+  g.fillStyle = color; g.fillText(text, x, y);
 }
 
-function drawHUD(pulse) {
-  for (let i = 0; i < MAX_HP / 2; i++) {
-    const v = Math.max(0, Math.min(2, hp - i * 2));
-    drawSprite(v === 2 ? SPR.heart : v === 1 ? SPR.heartHalf : SPR.heartEmpty, 20 + i * 22, 22, 18);
-  }
+function accuracy() {
+  const n = nPerfect + nGood + nMiss;
+  return n ? (nPerfect + nGood * 0.5) / n * 100 : 100;
+}
+function gradeOf(acc) { return acc >= 95 ? "S" : acc >= 88 ? "A" : acc >= 75 ? "B" : acc >= 60 ? "C" : "D"; }
+const GRADE_COLOR = { S: "#ffd34d", A: "#7ff0ff", B: "#8dff9a", C: "#d0d6e6", D: "#ff8fa3" };
+
+function drawHUD(pulse, now) {
+  for (let i = 0; i < MAX_HP / 2; i++) drawHeart(18 + i * 21, 20, 17, clamp(hp - i * 2, 0, 2));
   ctx.textBaseline = "middle";
-  pixelText(String(score), W - 50, 23, 14, "#fff", "right");
-  const y = 42;
-  if (!endless) {
-    const p = Math.min(1, score / WIN_SCORE);
-    ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(10, y, W - 20, 8);
-    ctx.fillStyle = "#1c3b8f"; ctx.fillRect(11, y + 1, W - 22, 6);
-    const grad = ctx.createLinearGradient(10, 0, W - 10, 0);
-    grad.addColorStop(0, "#6ad1ff"); grad.addColorStop(1, "#ffffff");
-    ctx.fillStyle = grad; ctx.fillRect(11, y + 1, Math.floor((W - 22) * p), 6);
-    if (pulse > 0.5) { ctx.fillStyle = `rgba(255,255,255,${(pulse - 0.5) * 0.6})`; ctx.fillRect(11, y + 1, Math.floor((W - 22) * p), 6); }
-    pixelText(`${Math.min(score, WIN_SCORE)}/${WIN_SCORE}`, W / 2, y + 18, 7, "rgba(255,255,255,0.75)", "center");
-  } else {
-    pixelText("БЕСКОНЕЧНОСТЬ  рекорд " + Math.max(best, score), W / 2, y + 6, 7, "#ffd34d", "center");
-  }
-  if (combo >= 3) {
-    const m = multiplier();
-    pixelText(`комбо ${combo}`, W / 2, H - 22, 9, m > 1 ? "#9fe7ff" : "rgba(255,255,255,0.8)", "center");
-  }
+  pixelText(String(score), W - 46, 21, 11, "#fff", "right");
+  // прогресс песни с отметками припевов
+  const y = 38, x0 = 10, w = W - 20;
+  ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(x0, y, w, 8);
+  ctx.fillStyle = "#1c3b8f"; ctx.fillRect(x0 + 1, y + 1, w - 2, 6);
+  for (const [a, b] of CHORUS) { ctx.fillStyle = "rgba(255,211,77,0.35)"; ctx.fillRect(x0 + 1 + (w - 2) * a / SONG_END, y + 1, (w - 2) * (b - a) / SONG_END, 6); }
+  const p = clamp(now / SONG_END, 0, 1);
+  const gr = ctx.createLinearGradient(x0, 0, x0 + w, 0); gr.addColorStop(0, "#6ad1ff"); gr.addColorStop(1, "#ffffff");
+  ctx.fillStyle = gr; ctx.fillRect(x0 + 1, y + 1, Math.floor((w - 2) * p), 6);
+  if (pulse > 0.5) { ctx.fillStyle = `rgba(255,255,255,${(pulse - 0.5) * 0.6})`; ctx.fillRect(x0 + 1, y + 1, Math.floor((w - 2) * p), 6); }
+  const acc = accuracy();
+  pixelText(`${L.name}  ${acc.toFixed(1)}%  ${gradeOf(acc)}`, W / 2, y + 17, 6, "rgba(255,255,255,0.75)", "center");
+  if (combo >= 3) pixelText(`комбо ${combo}`, W / 2, H - 22, combo >= 30 ? 11 : 9, combo >= 30 ? "#ffd34d" : combo >= 15 ? "#9fe7ff" : "rgba(255,255,255,0.8)", "center");
+  if (snowfall) pixelText("СНЕГОПАД x2", W / 2, H - 42, 7, "#ffd34d", "center");
   if (magnetT > 0) {
-    ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.fillRect(W / 2 - 50, H - 44, 100, 6);
-    ctx.fillStyle = "#d47bff"; ctx.fillRect(W / 2 - 50, H - 44, 100 * (magnetT / 6), 6);
+    ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.fillRect(W / 2 - 50, H - 58, 100, 5);
+    ctx.fillStyle = "#d47bff"; ctx.fillRect(W / 2 - 50, H - 58, 100 * (magnetT / 6), 5);
+  }
+  if (judge) {
+    const k = judge.t, sc = 1 + Math.max(0, 0.12 - k) * 3;
+    ctx.globalAlpha = k < 0.35 ? 1 : Math.max(0, 1 - (k - 0.35) / 0.15);
+    pixelText(judge.text, pcx(), player.y + player.h + 26, Math.round(9 * sc), judge.color, "center");
+    ctx.globalAlpha = 1;
   }
   if (flashText) {
     const k = flashText.t;
-    ctx.globalAlpha = k < 0.9 ? 1 : Math.max(0, 1 - (k - 0.9) / 0.3);
-    pixelText(flashText.text, W / 2, H * 0.5, 18 + Math.max(0, 0.15 - k) * 60, "#fff", "center");
+    ctx.globalAlpha = k < 1 ? 1 : Math.max(0, 1 - (k - 1) / 0.3);
+    pixelText(flashText.text, W / 2, H * 0.52, Math.round(15 + Math.max(0, 0.15 - k) * 50), "#fff", "center");
     ctx.globalAlpha = 1;
   }
   ctx.textBaseline = "alphabetic";
@@ -730,128 +838,227 @@ function drawHUD(pulse) {
 function drawHurt() {
   if (hurtT <= 0) return;
   const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.75);
-  g.addColorStop(0, "rgba(255,0,40,0)");
-  g.addColorStop(1, `rgba(255,0,40,${hurtT * 0.9})`);
+  g.addColorStop(0, "rgba(255,0,40,0)"); g.addColorStop(1, `rgba(255,0,40,${hurtT * 0.9})`);
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
 }
 
 function render() {
-  const pulse = beatPulse();
+  const pulse = beatPulse(), now = state === "menu" ? 0 : songNow();
   ctx.save();
   if (shakeT > 0) { const m = shakeT * 18; ctx.translate((Math.random() - 0.5) * m, (Math.random() - 0.5) * m); }
-  drawBG(pulse);
-  drawTargets();
-  drawItems();
+  drawBG(pulse, now);
+  drawTargets(now);
+  drawItems(now);
   if (state !== "menu") drawPlayer(pulse);
   drawFx();
   ctx.restore();
   drawHurt();
-  if (state === "play" || state === "paused") drawHUD(pulse);
+  if (state === "play" || state === "paused") drawHUD(pulse, now);
 }
 
 // =====================================================================
 //  ЭКРАНЫ
 // =====================================================================
 function showScreen(id) {
-  for (const s of ["menu", "pause", "over"]) $(s).classList.toggle("show", s === id);
-  canvas.classList.toggle("blurred", !!id && id !== "menu");
+  for (const s of ["menu", "skinsScr", "pause", "over", "cardScr"]) $(s).classList.toggle("show", s === id);
+  canvas.classList.toggle("blurred", id === "pause" || id === "over" || id === "cardScr");
   $("pauseBtn").classList.toggle("show", state === "play");
 }
-$("menuBest").textContent = best > 0 ? "Рекорд: " + best : "";
 
-function startGame(keepEndless = false) {
-  actx.resume();
-  if (!keepEndless) {
-    score = 0; hp = MAX_HP; combo = 0; bestCombo = 0; caught = 0; missed = 0;
-    endless = false;
-    items.length = 0;
-    startSong();
-    chartIdx = 0; chartCycle = 0; lastSpawnNote = -99;
-    player.x = W / 2 - player.w / 2;
-    flashText = { text: "ПОЕХАЛИ!", t: 0 };
+function buildLegend() {
+  const icon = fn => { const c = document.createElement("canvas"); c.width = c.height = 32; const g = c.getContext("2d"); g.imageSmoothingEnabled = false; fn(g); return c.toDataURL(); };
+  const rows = [
+    [icon(g => drawItem(g, "flake", 16, 16, 30)), "нота"],
+    [icon(g => drawItem(g, "gold", 16, 16, 30)), "x2 очки"],
+    [icon(g => { if (loaded(ribbonImg)) g.drawImage(ribbonImg, 10, 0, 12, 32); }), "держи"],
+    [icon(g => drawItem(g, "heart", 16, 16, 30)), "жизнь"],
+    [icon(g => drawItem(g, "star", 16, 16, 30)), "магнит"],
+    [icon(g => drawItem(g, "ice", 16, 16, 30)), "не лови!"]
+  ];
+  $("legend").innerHTML = rows.map(([s, t]) => `<img src="${s}" alt=""><span>${t}</span>`).join("");
+}
+let legendReady = 0;
+[itemsImg, ribbonImg].forEach(i => i.addEventListener("load", () => { if (++legendReady === 2) buildLegend(); }));
+if (loaded(itemsImg) && loaded(ribbonImg)) buildLegend();
+
+function buildLevels() {
+  $("levels").innerHTML = Object.entries(LEVELS).map(([k, l]) => {
+    const b = store.get("best_" + k, null);
+    return `<button class="lvl ${k === levelKey ? "on" : ""}" data-l="${k}">${l.name}<span>${b ? b.grade + " · " + b.score : "—"}</span></button>`;
+  }).join("");
+  $("levels").querySelectorAll("button").forEach(btn => btn.addEventListener("click", e => {
+    e.stopPropagation(); levelKey = btn.dataset.l; L = LEVELS[levelKey]; store.set("level", levelKey); buildLevels();
+  }));
+}
+buildLevels();
+
+function buildSkins() {
+  $("skinGrid").innerHTML = "";
+  for (const s of SKINS) {
+    const el = document.createElement("button");
+    const open = unlocked.has(s.id);
+    el.className = "skin" + (s.id === skinId ? " on" : "") + (open ? "" : " locked");
+    const cv = document.createElement("canvas"); cv.width = 211; cv.height = 297;
+    const g = cv.getContext("2d"); g.imageSmoothingEnabled = false; drawFrame(g, s.frames[0], 105, 148, 297);
+    el.appendChild(cv);
+    el.insertAdjacentHTML("beforeend", `<div>${s.name}</div><div class="cond">${s.id === skinId ? "ВЫБРАН" : open ? "выбрать" : "🔒 " + s.cond}</div>`);
+    el.addEventListener("click", e => { e.stopPropagation(); if (!open) return; skinId = s.id; store.set("skin", skinId); buildSkins(); });
+    $("skinGrid").appendChild(el);
   }
-  particles.length = 0; floaters.length = 0;
-  magnetT = 0; specialT = 4;
+}
+
+function startGame() {
+  actx.resume();
+  score = 0; hp = MAX_HP; combo = 0; bestCombo = 0; nPerfect = 0; nGood = 0; nMiss = 0; holdScore = 0;
+  chartIdx = 0; plan = []; lastPlanned = null; failed = false;
+  items.length = 0; particles.length = 0; floaters.length = 0;
+  magnetT = 0; emo = null; holding = null; snowfall = false; judge = null; sustainOff();
+  player.x = W / 2 - player.w / 2;
+  startSong();
   state = "play";
+  flashText = { text: "ПОЕХАЛИ!", t: 0 };
   showScreen(null);
 }
 
-function endGame(win) {
-  state = "over";
-  const isRecord = score > best;
-  if (isRecord) { best = score; store.set("best", best); }
-  // убрать хлопья, которые ещё летят — песня продолжает играть фоном
-  for (const f of items) if (f.chart) f.done = true;
+let result = null;
+function finish(win) {
+  if (state !== "play") return;
+  state = "over"; failed = !win; holding = null; sustainOff();
+  const acc = accuracy(), grade = gradeOf(acc), now = songNow();
+  result = { win, acc, grade, score, bestCombo, nPerfect, nGood, nMiss, level: L.name, progress: clamp(now / SONG_END, 0, 1) };
+  const badges = [];
   if (win) {
-    $("overTitle").textContent = "ПОБЕДА!";
-    $("overLine").textContent = "Всюду магия и свет ✨";
+    const key = "best_" + levelKey, prev = store.get(key, null);
+    if (!prev || score > prev.score) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
+    const newly = [];
+    const give = id => { if (!unlocked.has(id)) { unlocked.add(id); newly.push(SKINS.find(s => s.id === id).name); } };
+    give("hat");
+    if ("SA".includes(grade)) give("scarf");
+    if (levelKey === "hard") give("white");
+    if (grade === "S" && levelKey !== "easy") give("gold");
+    if (bestCombo >= 50) give("lights");
+    store.set("unlocked", [...unlocked]);
+    newly.forEach(n => badges.push("ОТКРЫТ СКИН: " + n));
     sfx.win();
     for (let i = 0; i < 80; i++) burst(Math.random() * W, H * 0.3 + Math.random() * H * 0.5, Math.random() < 0.3 ? "#ffd34d" : "#dff3ff", 1, 220);
   } else {
-    $("overTitle").textContent = endless ? "ВОТ ЭТО ЗАБЕГ!" : "ИГРА ОКОНЧЕНА";
-    $("overLine").textContent = "Падают хлопья, и с ними ты ❄️";
+    if (bestCombo >= 50 && !unlocked.has("lights")) { unlocked.add("lights"); store.set("unlocked", [...unlocked]); badges.push("ОТКРЫТ СКИН: ГИРЛЯНДА"); }
     sfx.lose();
+    stopSong();
   }
-  const acc = caught + missed > 0 ? Math.round(caught / (caught + missed) * 100) : 0;
-  $("overScore").textContent = `Очки: ${score}`;
-  $("overStats").textContent = `Нот поймано: ${caught} (${acc}%) · Комбо: ${bestCombo}`;
-  $("overRecord").innerHTML = isRecord && score > 0 ? '<span class="badge">НОВЫЙ РЕКОРД!</span>' : `<p class="gold">Рекорд: ${best}</p>`;
-  $("endlessBtn").style.display = win ? "" : "none";
-  $("againBtn").textContent = win ? "СНАЧАЛА" : "ЕЩЁ РАЗ";
-  $("shareBtn").textContent = "ПОДЕЛИТЬСЯ";
-  setTimeout(() => showScreen("over"), win ? 600 : 300);
+  $("overTitle").textContent = win ? "ПЕСНЯ ПРОЙДЕНА!" : "ХЛОПЬЯ УЛЕТЕЛИ…";
+  const gEl = $("overGrade");
+  gEl.textContent = win ? grade : Math.round(result.progress * 100) + "%";
+  gEl.style.color = win ? GRADE_COLOR[grade] : "#ff8fa3";
+  gEl.style.fontSize = win ? "" : "calc(var(--u) * 34px)";
+  $("overLine").textContent = win ? "Всюду магия и свет ✨" : "Падают хлопья, и с ними ты ❄️";
+  $("overStats").innerHTML = `
+    <div>ОЧКИ<b>${score}</b></div><div>ТОЧНОСТЬ<b>${acc.toFixed(1)}%</b></div>
+    <div>ИДЕАЛЬНО / ХОРОШО<b>${nPerfect} / ${nGood}</b></div><div>МИМО · КОМБО<b>${nMiss} · ${bestCombo}</b></div>`;
+  $("overBadges").innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join("");
+  $("againBtn").textContent = win ? "ЕЩЁ РАЗ" : "ПОПРОБОВАТЬ СНОВА";
+  buildLevels();
+  setTimeout(() => showScreen("over"), win ? 900 : 400);
 }
 
-function pauseGame() {
-  if (state !== "play") return;
-  state = "paused";
-  actx.suspend();          // песня и часы игры замирают вместе
-  showScreen("pause");
-}
-function resumeGame() {
-  if (state !== "paused") return;
-  actx.resume();
-  state = "play";
-  showScreen(null);
-}
+function pauseGame() { if (state !== "play") return; state = "paused"; actx.suspend(); showScreen("pause"); }
+function resumeGame() { if (state !== "paused") return; actx.resume(); state = "play"; showScreen(null); }
+function toMenu() { stopSong(); sustainOff(); actx.resume(); state = "menu"; items.length = 0; showScreen("menu"); }
 
-async function share() {
-  const text = `Я набрал ${score} очков в игре «Хлопья летят наверх» ❄️ Попробуй побить!`;
-  const url = location.href.split("#")[0];
+// =====================================================================
+//  КАРТОЧКА ДЛЯ СТОРИС (1080×1920)
+// =====================================================================
+let cardBlob = null;
+async function makeCard() {
+  try { await document.fonts.load('40px "Press Start 2P"'); } catch (e) {}
+  const c = document.createElement("canvas"); c.width = 1080; c.height = 1920;
+  const g = c.getContext("2d"); g.imageSmoothingEnabled = false;
+  if (loaded(bgImg)) g.drawImage(bgImg, 0, 0, 1080, 1920);
+  const dark = g.createLinearGradient(0, 0, 0, 1920);
+  dark.addColorStop(0, "rgba(5,10,30,0.35)"); dark.addColorStop(0.55, "rgba(5,10,30,0.55)"); dark.addColorStop(1, "rgba(5,10,30,0.2)");
+  g.fillStyle = dark; g.fillRect(0, 0, 1080, 1920);
+  drawAurora(g, 1080, 1920, 1, 2.0);
+  if (loaded(winImg)) { g.save(); g.globalCompositeOperation = "lighter"; g.globalAlpha = 0.35; g.drawImage(winImg, 0, 0, 1080, 1920); g.restore(); }
+  for (let i = 0; i < 70; i++) { const x = Math.random() * 1080, y = Math.random() * 1920, s = 3 + Math.random() * 6; g.fillStyle = "rgba(230,240,255,0.7)"; g.fillRect(x, y, s, s); }
+  g.textBaseline = "middle";
+  const title = (t, y, size, col) => { g.font = `${size}px "Press Start 2P", monospace`; g.textAlign = "center"; g.fillStyle = "#2a5cff"; g.fillText(t, 540, y + size * 0.18); g.fillStyle = col; g.fillText(t, 540, y); };
+  title("ХЛОПЬЯ", 170, 72, "#eaf6ff"); title("ЛЕТЯТ НАВЕРХ", 270, 64, "#eaf6ff");
+  // Федук
+  g.save(); g.globalAlpha = 0.9; g.drawImage(GLOW.white, 540 - 330, 760 - 330, 660, 660); g.restore();
+  drawFrame(g, result.win ? (skinId === "base" ? "victory" : skin().frames[0]) : (skinId === "base" ? "hurt" : skin().frames[0]), 540, 760, 640);
+  // оценка
+  const gr = result.win ? result.grade : Math.round(result.progress * 100) + "%";
+  const col = result.win ? GRADE_COLOR[result.grade] : "#ff8fa3";
+  g.save(); g.globalAlpha = 0.8; g.drawImage(result.win && result.grade === "S" ? GLOW.gold : GLOW.cyan, 540 - 220, 1230 - 220, 440, 440); g.restore();
+  g.font = `${result.win ? 230 : 120}px "Press Start 2P", monospace`; g.textAlign = "center";
+  g.fillStyle = "rgba(0,0,0,0.55)"; g.fillText(gr, 552, 1252); g.fillStyle = col; g.fillText(gr, 540, 1235);
+  title(result.win ? "ПЕСНЯ ПРОЙДЕНА" : "ПОЧТИ ДОЛЕТЕЛ", 1430, 40, "#ffffff");
+  g.font = '34px "Press Start 2P", monospace'; g.fillStyle = "#cfe0ff";
+  g.fillText(`${result.level} · ${result.score} ОЧКОВ`, 540, 1520);
+  g.fillText(`ТОЧНОСТЬ ${result.acc.toFixed(1)}% · КОМБО ${result.bestCombo}`, 540, 1585);
+  g.font = '30px "Press Start 2P", monospace'; g.fillStyle = "#ffd34d"; g.fillText("ПОБЕЙ МОЙ РЕКОРД ❄", 540, 1720);
+  g.font = '22px "Press Start 2P", monospace'; g.fillStyle = "#ffffff";
+  g.fillText(location.host + location.pathname.replace(/index\.html$/, ""), 540, 1790);
+  return new Promise(res => c.toBlob(b => res(b), "image/png"));
+}
+async function openCard() {
+  $("cardBtn").textContent = "РИСУЮ…";
+  cardBlob = await makeCard();
+  $("cardImg").src = URL.createObjectURL(cardBlob);
+  $("cardBtn").textContent = "КАРТОЧКА ДЛЯ СТОРИС";
+  showScreen("cardScr");
+}
+async function shareCard() {
+  if (!cardBlob) return;
+  const file = new File([cardBlob], "hlopya-letyat-naverh.png", { type: "image/png" });
+  const text = `Прошёл «Хлопья летят наверх» на ${result.win ? result.grade : Math.round(result.progress * 100) + "%"} ❄️ Побьёшь?`;
   try {
-    if (navigator.share) { await navigator.share({ title: "Хлопья летят наверх", text, url }); return; }
-    await navigator.clipboard.writeText(text + " " + url);
-    $("shareBtn").textContent = "СКОПИРОВАНО!";
-  } catch (e) {}
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text, url: location.href.split("#")[0] }); return; }
+  } catch (e) { return; }
+  saveCard();
+}
+function saveCard() {
+  if (!cardBlob) return;
+  const a = document.createElement("a"); a.href = URL.createObjectURL(cardBlob); a.download = "hlopya-letyat-naverh.png";
+  document.body.appendChild(a); a.click(); a.remove();
 }
 
+// кнопки
 const tap = (id, fn) => $(id).addEventListener("click", e => { e.stopPropagation(); fn(); });
-tap("playBtn", () => startGame());
-tap("againBtn", () => startGame());
-tap("restartBtn", () => startGame());
+tap("playBtn", startGame);
+tap("againBtn", startGame);
+tap("restartBtn", startGame);
 tap("resumeBtn", resumeGame);
 tap("pauseBtn", pauseGame);
+tap("menuBtn1", toMenu);
+tap("menuBtn2", toMenu);
 tap("muteBtn1", () => { actx.resume(); toggleMute(); });
 tap("muteBtn2", toggleMute);
-tap("shareBtn", share);
-tap("endlessBtn", () => { endless = true; startGame(true); flashText = { text: "БЕСКОНЕЧНОСТЬ!", t: 0 }; });
+tap("skinsBtn", () => { buildSkins(); showScreen("skinsScr"); });
+tap("skinsBack", () => showScreen("menu"));
+tap("cardBtn", openCard);
+tap("shareCardBtn", shareCard);
+tap("saveCardBtn", saveCard);
+tap("cardBack", () => showScreen("over"));
+atlas.addEventListener("load", () => { if ($("skinsScr").classList.contains("show")) buildSkins(); });
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) { if (state === "play") pauseGame(); else actx.suspend(); }
-  else if (state === "over") actx.resume();
+  else if (state === "over" || state === "menu") actx.resume();
 });
 
 // =====================================================================
 //  УПРАВЛЕНИЕ
 // =====================================================================
 const keys = { left: false, right: false };
+const pointer = { active: false, x: null };
 window.addEventListener("keydown", e => {
   if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
   if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
   if (e.code === "Escape" || e.code === "KeyP") { state === "play" ? pauseGame() : resumeGame(); }
   if (e.code === "Space" || e.code === "Enter") {
     e.preventDefault();
-    if (state === "menu" && !$("playBtn").disabled) startGame();
+    if (state === "menu" && $("menu").classList.contains("show") && !$("playBtn").disabled) startGame();
     else if (state === "paused") resumeGame();
     else if (state === "over" && $("over").classList.contains("show")) startGame();
   }
@@ -861,18 +1068,13 @@ window.addEventListener("keyup", e => {
   if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = false;
   if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
 });
-
-const pointer = { active: false, x: null };
 function pMove(e) {
   if (!pointer.active && e.pointerType !== "mouse") return;
   const rect = canvas.getBoundingClientRect();
   pointer.x = (e.clientX - rect.left) / rect.width * W;
 }
 canvas.addEventListener("pointerdown", e => { pointer.active = true; pMove(e); });
-window.addEventListener("pointermove", e => {
-  if (e.pointerType === "mouse" && state === "play") pointer.active = true;
-  pMove(e);
-});
+window.addEventListener("pointermove", e => { if (e.pointerType === "mouse" && state === "play") pointer.active = true; pMove(e); });
 window.addEventListener("pointerup", e => { if (e.pointerType !== "mouse") { pointer.active = false; pointer.x = null; } });
 
 // =====================================================================
