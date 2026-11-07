@@ -108,22 +108,22 @@
     .skin .cond { opacity: .7; font-size: calc(var(--u) * 5px); }
     #cardImg { width: 70%; border-radius: calc(var(--u) * 6px); box-shadow: 0 0 20px rgba(0,0,0,.6); }
 
-    /* логотип ДК ДАНС */
-    a.dk { display: inline-flex; flex-direction: column; align-items: center; text-decoration: none; margin-bottom: calc(var(--u) * 6px); -webkit-tap-highlight-color: transparent; }
-    a.dk img {
-      width: calc(var(--u) * 78px); height: auto; display: block;
-      filter: drop-shadow(0 0 calc(var(--u) * 8px) rgba(253,190,160,.55));
-      animation: dkFloat 3.2s ease-in-out infinite;
-      transition: transform .2s ease, filter .2s ease;
+    /* луна-ссылка ДК ДАНС (луна рисуется на канвасе, тут — кликабельная зона) */
+    a.moonLink {
+      position: absolute; z-index: 2; border-radius: 50%;
+      left: calc(var(--u) * 262px); top: calc(var(--u) * 60px);
+      width: calc(var(--u) * 68px); height: calc(var(--u) * 68px);
+      -webkit-tap-highlight-color: transparent;
     }
-    a.dk:hover img, a.dk:active img { transform: scale(1.08) rotate(-4deg); filter: drop-shadow(0 0 calc(var(--u) * 14px) rgba(255,200,170,.9)); }
-    a.dk span {
-      margin-top: calc(var(--u) * 5px); font-size: calc(var(--u) * 6px); letter-spacing: .12em; color: #fdd6c4;
-      padding: calc(var(--u) * 4px) calc(var(--u) * 7px); border: 1px solid rgba(253,214,196,.35); border-radius: 999px;
-      background: rgba(253,214,196,.08);
+    a.moonLink span {
+      position: absolute; left: 50%; top: 100%; transform: translateX(-50%); white-space: nowrap;
+      margin-top: calc(var(--u) * 4px); font-size: calc(var(--u) * 6px); letter-spacing: .12em; color: #fdd6c4;
+      padding: calc(var(--u) * 3px) calc(var(--u) * 6px); border: 1px solid rgba(253,214,196,.35); border-radius: 999px;
+      background: rgba(10,16,40,.55); transition: background .2s ease;
     }
-    a.dk span b { font-weight: normal; color: #ffb79a; }
-    @keyframes dkFloat { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(calc(var(--u) * -4px)) rotate(2deg); } }
+    a.moonLink span b { font-weight: normal; color: #ffb79a; }
+    a.moonLink:hover span, a.moonLink:active span { background: rgba(253,214,196,.2); }
+    #menu { justify-content: center; }
     @keyframes fadeUp { from { opacity:0; transform: translateY(14px); } to { opacity:1; transform: none; } }
     @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
     @keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -136,11 +136,10 @@
 
   <!-- МЕНЮ -->
   <div class="screen show" id="menu">
+    <a class="moonLink" id="moonLink" href="https://t.me/dkdanceblog" target="_blank" rel="noopener" aria-label="ДК ДАНС в Telegram">
+      <span>ДК ДАНС <b>↗</b></span>
+    </a>
     <div class="card">
-      <a class="dk" href="https://t.me/dkdanceblog" target="_blank" rel="noopener" aria-label="ДК ДАНС в Telegram">
-        <img src="assets/logo_dk.png" alt="ДК ДАНС">
-        <span>ДК ДАНС <b>↗ TELEGRAM</b></span>
-      </a>
       <h1>ХЛОПЬЯ<br>ЛЕТЯТ<br>НАВЕРХ</h1>
       <p>Лови хлопья в такт песни.<br>Пройди её до конца на S!</p>
       <div class="legend" id="legend"></div>
@@ -311,6 +310,32 @@ const WMASK = {};
 LAYER.far.addEventListener("load", () => { try { WMASK.far = windowMask(LAYER.far); } catch (e) {} });
 LAYER.near.addEventListener("load", () => { try { WMASK.near = windowMask(LAYER.near); } catch (e) {} });
 const loaded = i => i.complete && i.naturalWidth > 0;
+// Луна с логотипом ДК ДАНС: рисуем один раз в маленький холст
+const logoImg = img("assets/logo_dk.png");
+let moonCv = null;
+const MOON = { x: 296, y: 94, r: 30 };
+function buildMoon() {
+  const S = 120, c = document.createElement("canvas"); c.width = c.height = S;   // 2 точки на пиксель игры
+  const g = c.getContext("2d"), R = S / 2 - 2, P = 4;                            // P — размер «пикселя»
+  for (let y = 0; y < S; y += P) for (let x = 0; x < S; x += P) {
+    const dx = x + P / 2 - S / 2, dy = y + P / 2 - S / 2, d = Math.hypot(dx, dy);
+    if (d > R) continue;
+    const shade = 1 - (dx + dy) / (R * 6) - (d / R) * 0.08;                     // свет слева-сверху
+    g.fillStyle = `rgb(${Math.round(255 * Math.min(1, shade))},${Math.round(232 * Math.min(1, shade))},${Math.round(180 * Math.min(1, shade))})`;
+    g.fillRect(x, y, P, P);
+  }
+  // логотип — тёмной «лунной» гравировкой
+  const t = document.createElement("canvas"); t.width = t.height = S;
+  const tg = t.getContext("2d"), L = S * 0.86;
+  tg.drawImage(logoImg, (S - L) / 2, (S - L) / 2 + 2, L, L);
+  tg.globalCompositeOperation = "source-in"; tg.fillStyle = "#9a7650"; tg.fillRect(0, 0, S, S);
+  g.save(); g.beginPath(); g.arc(S / 2, S / 2, R, 0, Math.PI * 2); g.clip();
+  g.globalAlpha = 0.85; g.drawImage(t, 0, 0); g.restore();
+  moonCv = c;
+}
+logoImg.addEventListener("load", buildMoon);
+if (loaded(logoImg)) buildMoon();
+let moonHover = 0;
 const ATLAS = { cw: 211, ch: 297, cols: 6, idx: {fly0: 0, fly1: 1, fly2: 2, fly3: 3, hurt: 4, victory: 5, mask0: 6, mask1: 7, mask2: 8, mask3: 9, sailor0: 10, sailor1: 11, sailor2: 12, sailor3: 13, jet0: 14, jet1: 15, jet2: 16, jet3: 17} };
 const ITEM = { flake: 0, gold: 1, perfect: 2, ice: 3, heart: 4, star: 5 };
 
@@ -721,6 +746,14 @@ function drawAurora(g, w, h, level, t) {
   g.restore();
 }
 
+function drawMoon(depth) {
+  if (!moonCv) return;
+  const x = MOON.x - parX * depth, y = MOON.y, r = MOON.r;
+  const glow = 0.35 + moonHover * 0.5 + (state === "menu" ? Math.sin(time * 2) * 0.08 : 0);
+  ctx.save(); ctx.globalAlpha = glow; ctx.globalCompositeOperation = "lighter";
+  ctx.drawImage(GLOW.white, x - r * 2.4, y - r * 2.4, r * 4.8, r * 4.8); ctx.restore();
+  ctx.drawImage(moonCv, x - r, y - r, r * 2, r * 2);
+}
 function drawLayer(im, depth, bottom) {
   const k = 1.08, w = W * k, h = H * k;
   ctx.drawImage(im, (W - w) / 2 - parX * depth, bottom ? H - h : (H - h) / 2, w, h);
@@ -752,6 +785,7 @@ function drawBG(pulse, now) {
     ctx.fillStyle = "#02163b"; ctx.fillRect(0, 0, W, H);
     const k = 1.08, w = W * k, h = H * k;
     ctx.drawImage(LAYER.sky, (W - w) / 2 - parX * 4, (H - h) / 2 + 48, w, h);
+    drawMoon(4);
   }
   else if (loaded(bgImg)) drawLayer(bgImg, 7, true);
   else { ctx.fillStyle = "#0a1430"; ctx.fillRect(0, 0, W, H); }
@@ -1253,6 +1287,9 @@ function saveCard() {
 // кнопки
 const tap = (id, fn) => $(id).addEventListener("click", e => { e.stopPropagation(); fn(); });
 tap("playBtn", () => startGame());
+$("moonLink").addEventListener("pointerenter", () => moonHover = 1);
+$("moonLink").addEventListener("pointerleave", () => moonHover = 0);
+$("moonLink").addEventListener("pointerdown", e => { e.stopPropagation(); moonHover = 1; setTimeout(() => moonHover = 0, 600); });
 // ВРЕМЕННО: кнопки просмотра финала
 tap("demoEnd5", () => startGame(Math.max(0, SONG_END - 5)));
 tap("demoEnd0", () => { startGame(Math.max(0, SONG_END - 1)); setTimeout(() => finish(true), 200); });
