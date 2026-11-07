@@ -97,7 +97,7 @@
     .stats { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 4px); font-size: calc(var(--u) * 7px); margin: calc(var(--u) * 8px) auto; width: 90%; }
     .stats div { background: rgba(0,0,0,.35); padding: calc(var(--u) * 6px); border-radius: calc(var(--u) * 5px); line-height: 1.6; }
     .stats b { display: block; font-size: calc(var(--u) * 10px); font-weight: normal; }
-    .skins { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: calc(var(--u) * 5px); margin: calc(var(--u) * 8px) 0; }
+    .skins { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--u) * 5px); margin: calc(var(--u) * 8px) 0; }
     .skin {
       background: rgba(0,0,0,.35); border: calc(var(--u) * 2px) solid transparent; border-radius: calc(var(--u) * 6px);
       padding: calc(var(--u) * 4px); font-size: calc(var(--u) * 6px); line-height: 1.5; cursor: pointer; color: #fff; font-family: inherit;
@@ -248,18 +248,12 @@ let L = LEVELS[levelKey];
 //  СКИНЫ
 // =====================================================================
 const SKINS = [
-  { id: "base",   name: "КЛАССИКА",   cond: "всегда",                    frames: ["fly0", "fly1", "fly2", "fly3"] },
-  { id: "hat",    name: "ШАПКА",      cond: "пройди песню",              frames: ["hat0", "hat1", "hat2", "hat3"] },
-  { id: "scarf",  name: "ШАРФ",       cond: "оценка A или выше",         frames: ["scarf0", "scarf1", "scarf2", "scarf3"] },
-  { id: "lights", name: "ГИРЛЯНДА",   cond: "комбо 50",                  frames: ["lights"] },
-  { id: "white",  name: "БЕЛАЯ КУРТКА", cond: "пройди на хардкоре",      frames: ["white0", "white1", "white2", "white3"] },
-  { id: "gold",   name: "ЗОЛОТОЙ",    cond: "S на нормальном или хардкоре", frames: ["gold"] },
-  { id: "mask",   name: "КОТ",        cond: "сыграй 3 раза",             frames: ["mask0", "mask1", "mask2", "mask3"] },
-  { id: "sailor", name: "МОРЯК",      cond: "пройди песню 3 раза",       frames: ["sailor0", "sailor1", "sailor2", "sailor3"] },
-  { id: "jet",    name: "РОЗОВОЕ ВИНО", cond: "150 000 очков за игру",   frames: ["jet0", "jet1", "jet2", "jet3"] }
+  { id: "base",   name: "КЛАССИКА",     frames: ["fly0", "fly1", "fly2", "fly3"] },
+  { id: "mask",   name: "КОТ",          frames: ["mask0", "mask1", "mask2", "mask3"] },
+  { id: "sailor", name: "МОРЯК",        frames: ["sailor0", "sailor1", "sailor2", "sailor3"] },
+  { id: "jet",    name: "РОЗОВОЕ ВИНО", frames: ["jet0", "jet1", "jet2", "jet3"] }
 ];
-let unlocked = new Set(store.get("unlocked", ["base"]));
-unlocked.add("base");
+const unlocked = new Set(SKINS.map(s => s.id));   // все скины открыты
 let skinId = store.get("skin", "base");
 if (!unlocked.has(skinId)) skinId = "base";
 const skin = () => SKINS.find(s => s.id === skinId);
@@ -292,7 +286,7 @@ const WMASK = {};
 LAYER.far.addEventListener("load", () => { try { WMASK.far = windowMask(LAYER.far); } catch (e) {} });
 LAYER.near.addEventListener("load", () => { try { WMASK.near = windowMask(LAYER.near); } catch (e) {} });
 const loaded = i => i.complete && i.naturalWidth > 0;
-const ATLAS = { cw: 211, ch: 297, cols: 6, idx: {fly0:  0,  fly1:  1,  fly2:  2,  fly3:  3,  catch:  4,  perfect:  5,  hurt:  6,  victory:  7,  hat0:  8,  hat1:  9,  hat2:  10,  hat3:  11,  scarf0:  12,  scarf1:  13,  scarf2:  14,  scarf3:  15,  white0:  16,  white1:  17,  white2:  18,  white3:  19,  gold:  20,  lights:  21,  mask0:  22,  mask1:  23,  mask2:  24,  mask3:  25,  sailor0:  26,  sailor1:  27,  sailor2:  28,  sailor3:  29,  jet0:  30,  jet1:  31,  jet2:  32,  jet3:  33} };
+const ATLAS = { cw: 211, ch: 297, cols: 6, idx: {fly0: 0, fly1: 1, fly2: 2, fly3: 3, hurt: 4, victory: 5, mask0: 6, mask1: 7, mask2: 8, mask3: 9, sailor0: 10, sailor1: 11, sailor2: 12, sailor3: 13, jet0: 14, jet1: 15, jet2: 16, jet3: 17} };
 const ITEM = { flake: 0, gold: 1, perfect: 2, ice: 3, heart: 4, star: 5 };
 
 function drawFrame(g, name, cx, cy, h) {
@@ -1008,7 +1002,7 @@ function buildSkins() {
     const cv = document.createElement("canvas"); cv.width = 211; cv.height = 297;
     const g = cv.getContext("2d"); g.imageSmoothingEnabled = false; drawFrame(g, s.frames[0], 105, 148, 297);
     el.appendChild(cv);
-    el.insertAdjacentHTML("beforeend", `<div>${s.name}</div><div class="cond">${s.id === skinId ? "ВЫБРАН" : open ? "выбрать" : "🔒 " + s.cond}</div>`);
+    el.insertAdjacentHTML("beforeend", `<div>${s.name}</div><div class="cond">${s.id === skinId ? "ВЫБРАН" : "выбрать"}</div>`);
     el.addEventListener("click", e => { e.stopPropagation(); if (!open) return; skinId = s.id; store.set("skin", skinId); buildSkins(); });
     $("skinGrid").appendChild(el);
   }
@@ -1034,29 +1028,12 @@ function finish(win) {
   const acc = accuracy(), grade = gradeOf(acc), now = songNow();
   result = { win, acc, grade, score, bestCombo, nPerfect, nGood, nMiss, level: L.name, progress: clamp(now / SONG_END, 0, 1) };
   const badges = [];
-  const plays = store.get("plays", 0) + 1; store.set("plays", plays);
-  const clears = store.get("clears", 0) + (win ? 1 : 0); store.set("clears", clears);
-  const giveAny = id => { if (!unlocked.has(id)) { unlocked.add(id); badges.push("ОТКРЫТ СКИН: " + SKINS.find(s => s.id === id).name); } };
-  if (plays >= 3) giveAny("mask");
-  if (clears >= 3) giveAny("sailor");
-  if (score >= 150000) giveAny("jet");
-  store.set("unlocked", [...unlocked]);
   if (win) {
     const key = "best_" + levelKey, prev = store.get(key, null);
     if (!prev || score > prev.score) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
-    const newly = [];
-    const give = id => { if (!unlocked.has(id)) { unlocked.add(id); newly.push(SKINS.find(s => s.id === id).name); } };
-    give("hat");
-    if ("SA".includes(grade)) give("scarf");
-    if (levelKey === "hard") give("white");
-    if (grade === "S" && levelKey !== "easy") give("gold");
-    if (bestCombo >= 50) give("lights");
-    store.set("unlocked", [...unlocked]);
-    newly.forEach(n => badges.push("ОТКРЫТ СКИН: " + n));
     sfx.win();
     for (let i = 0; i < 80; i++) burst(Math.random() * W, H * 0.3 + Math.random() * H * 0.5, Math.random() < 0.3 ? "#ffd34d" : "#dff3ff", 1, 220);
   } else {
-    if (bestCombo >= 50 && !unlocked.has("lights")) { unlocked.add("lights"); store.set("unlocked", [...unlocked]); badges.push("ОТКРЫТ СКИН: ГИРЛЯНДА"); }
     sfx.lose();
     stopSong();
   }
