@@ -312,7 +312,7 @@ LAYER.near.addEventListener("load", () => { try { WMASK.near = windowMask(LAYER.
 const loaded = i => i.complete && i.naturalWidth > 0;
 // Луна с логотипом ДК ДАНС: рисуем один раз в маленький холст
 const logoImg = img("assets/logo_dk.png");
-let moonCv = null;
+let moonCv = null, moonPlain = null, moonLogoA = 1;
 const MOON = { x: 296, y: 94, r: 30 };
 function buildMoon() {
   const S = 120, c = document.createElement("canvas"); c.width = c.height = S;   // 2 точки на пиксель игры
@@ -324,6 +324,13 @@ function buildMoon() {
     g.fillStyle = `rgb(${Math.round(255 * Math.min(1, shade))},${Math.round(232 * Math.min(1, shade))},${Math.round(180 * Math.min(1, shade))})`;
     g.fillRect(x, y, P, P);
   }
+  // обычная луна: копия диска + несколько кратеров
+  moonPlain = document.createElement("canvas"); moonPlain.width = moonPlain.height = S;
+  const pg = moonPlain.getContext("2d"); pg.drawImage(c, 0, 0);
+  pg.fillStyle = "rgba(170,140,100,0.45)";
+  [[44, 40, 10], [74, 58, 7], [52, 78, 8], [80, 34, 5], [34, 62, 5], [68, 84, 4]].forEach(([cx, cy, r]) => {
+    for (let y = -r; y <= r; y += P) for (let x = -r; x <= r; x += P) if (x * x + y * y <= r * r) pg.fillRect(Math.round((cx + x) / P) * P, Math.round((cy + y) / P) * P, P, P);
+  });
   // логотип — тёмной «лунной» гравировкой
   const t = document.createElement("canvas"); t.width = t.height = S;
   const tg = t.getContext("2d"), L = S * 0.86;
@@ -752,7 +759,10 @@ function drawMoon(depth) {
   const glow = 0.35 + moonHover * 0.5 + (state === "menu" ? Math.sin(time * 2) * 0.08 : 0);
   ctx.save(); ctx.globalAlpha = glow; ctx.globalCompositeOperation = "lighter";
   ctx.drawImage(GLOW.white, x - r * 2.4, y - r * 2.4, r * 4.8, r * 4.8); ctx.restore();
-  ctx.drawImage(moonCv, x - r, y - r, r * 2, r * 2);
+  // в меню — луна с логотипом, в игре логотип плавно растворяется
+  moonLogoA += ((state === "menu" ? 1 : 0) - moonLogoA) * 0.06;
+  ctx.drawImage(moonPlain, x - r, y - r, r * 2, r * 2);
+  if (moonLogoA > 0.01) { ctx.save(); ctx.globalAlpha = moonLogoA; ctx.drawImage(moonCv, x - r, y - r, r * 2, r * 2); ctx.restore(); }
 }
 function drawLayer(im, depth, bottom) {
   const k = 1.08, w = W * k, h = H * k;
