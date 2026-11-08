@@ -1146,14 +1146,56 @@ const fireworks = [];
 let outro = null;                       // { t, win, dur }
 const FW_COLORS = ["#ffd34d", "#7ff0ff", "#ff7aa8", "#b98bff", "#8dff9a", "#ffffff"];
 let noiseBuf = null;
-function pop(vol = 0.25) {              // хлопок салюта
+function noise() {
   if (!noiseBuf) {
-    noiseBuf = actx.createBuffer(1, actx.sampleRate * 0.4, actx.sampleRate);
-    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+    noiseBuf = actx.createBuffer(1, actx.sampleRate, actx.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   }
-  const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
-  src.buffer = noiseBuf; f.type = "lowpass"; f.frequency.value = 900 + Math.random() * 900; g.gain.value = vol;
-  src.connect(f); f.connect(g); g.connect(sfxGain); src.start();
+  return noiseBuf;
+}
+function panned(x) {                      // звук слева/справа по месту на экране
+  const g = actx.createGain();
+  if (actx.createStereoPanner) { const p = actx.createStereoPanner(); p.pan.value = clamp((x / W) * 2 - 1, -1, 1) * 0.7; g.connect(p); p.connect(sfxGain); }
+  else g.connect(sfxGain);
+  return g;
+}
+function whistle(x) {                     // свист взлетающей ракеты
+  const t = actx.currentTime, out = panned(x), o = actx.createOscillator(), g = actx.createGain();
+  o.type = "sine"; o.frequency.setValueAtTime(700, t); o.frequency.exponentialRampToValueAtTime(2300, t + 0.38);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.025, t + 0.08); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+  o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.42);
+}
+function boom(x) {                        // взрыв салюта: мягкий бум + треск искр
+  const t = actx.currentTime, out = panned(x);
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = "sine"; o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.35);
+  g.gain.setValueAtTime(0.22, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+  o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.42);
+  const n = actx.createBufferSource(), bp = actx.createBiquadFilter(), ng = actx.createGain();
+  n.buffer = noise(); bp.type = "bandpass"; bp.frequency.value = 1800; bp.Q.value = 0.7;
+  ng.gain.setValueAtTime(0.12, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+  n.connect(bp); bp.connect(ng); ng.connect(out); n.start(t, Math.random() * 0.5, 0.16);
+  for (let i = 0; i < 16; i++) {          // потрескивание
+    const ct = t + 0.12 + Math.random() * 0.8, c = actx.createBufferSource(), hp = actx.createBiquadFilter(), cg = actx.createGain();
+    c.buffer = noise(); hp.type = "highpass"; hp.frequency.value = 3500;
+    cg.gain.setValueAtTime(0.02 + Math.random() * 0.04, ct); cg.gain.exponentialRampToValueAtTime(0.0001, ct + 0.012);
+    c.connect(hp); hp.connect(cg); cg.connect(out); c.start(ct, Math.random() * 0.9, 0.015);
+  }
+}
+function victoryJingle() {                // победный джингл в тональности песни (ля мажор)
+  const t = actx.currentTime + 0.05;
+  [69, 73, 76, 81].forEach((m, i) => bell(m, t + i * 0.11, 0.2));
+  [81, 85, 88].forEach(m => bell(m, t + 0.5, 0.13));
+  bell(93, t + 0.5, 0.06);
+  const twinkle = [88, 90, 93, 95, 97, 100];
+  for (let i = 0; i < 9; i++) bell(twinkle[Math.floor(Math.random() * twinkle.length)], t + 0.7 + i * 0.16 + Math.random() * 0.05, 0.045);
+  [57, 64, 69, 73].forEach(m => {         // мягкая подложка
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = "triangle"; o.frequency.value = midiHz(m);
+    g.gain.setValueAtTime(0.0001, t + 0.4); g.gain.exponentialRampToValueAtTime(0.03, t + 0.9);
+    g.gain.setValueAtTime(0.03, t + 1.9); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.8);
+    o.connect(g); g.connect(sfxGain); o.start(t + 0.4); o.stop(t + 2.9);
+  });
 }
 function firework(x, y) {
   const col = FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)], n = 56 + Math.floor(Math.random() * 20), sp = 110 + Math.random() * 70;
@@ -1163,18 +1205,21 @@ function firework(x, y) {
   }
   fireworks.push({ x, y, vx: 0, vy: 0, t: 0, life: 0.35, flash: true, c: col });
   rings.push({ x, y, t: 0, life: 0.4, r0: 4, r1: 30, color: col, w: 2 });
-  pop(0.18 + Math.random() * 0.1);
+  boom(x);
 }
 function startOutro(win) {
   outro = { t: 0, win, dur: win ? 7.2 : 3.4, fw: 0.9 };
   for (const f of items) f.state = f.state === "fly" ? "dodged" : f.state;
   items.length = 0; judge = null; flashText = null; emo = null;
   if (win) {
-    // под салют — припев самой песни с плавным нарастанием
+    // сначала победный джингл, потом плавно вступает припев песни
+    victoryJingle();
     startSong(CHORUS[0][0]);
-    musicGain.gain.cancelScheduledValues(actx.currentTime);
-    musicGain.gain.setValueAtTime(0.0001, actx.currentTime);
-    musicGain.gain.exponentialRampToValueAtTime(0.32, actx.currentTime + 1.2);
+    const t = actx.currentTime;
+    musicGain.gain.cancelScheduledValues(t);
+    musicGain.gain.setValueAtTime(0.0001, t);
+    musicGain.gain.setValueAtTime(0.0001, t + 2.2);
+    musicGain.gain.exponentialRampToValueAtTime(0.32, t + 3.8);
   }
 }
 function updateOutro(dt) {
@@ -1183,7 +1228,10 @@ function updateOutro(dt) {
     const q = fireworks[i]; q.t += dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vx *= 0.97; q.vy = q.vy * 0.97 + 70 * dt;
     if (q.t > q.life) fireworks.splice(i, 1);
   }
-  if (o.win && o.t > o.fw && o.t < 6) { firework(40 + Math.random() * (W - 80), 90 + Math.random() * 220); o.fw = o.t + 0.22 + Math.random() * 0.3; }
+  if (o.win && o.t < 6) {
+    if (!o.next && o.t > o.fw - 0.4) { o.next = { x: 40 + Math.random() * (W - 80), y: 90 + Math.random() * 220 }; if (Math.random() < 0.7) whistle(o.next.x); }
+    if (o.next && o.t > o.fw) { firework(o.next.x, o.next.y); o.next = null; o.fw = o.t + 0.3 + Math.random() * 0.35; }
+  }
   // шлейф при взлёте
   if (o.win && o.t > 1.4 && o.t < 2.6) for (let k = 0; k < 3; k++)
     particles.push({ x: pcx() + (Math.random() - 0.5) * 30, y: player.y + player.h / 2 + outroOffset() + 50, vx: (Math.random() - 0.5) * 30, vy: 60 + Math.random() * 60, life: 0.6, t: 0, c: "#dff3ff", s: 2 + Math.floor(Math.random() * 2) });
