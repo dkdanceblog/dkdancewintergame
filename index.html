@@ -435,7 +435,8 @@ const AC = window.AudioContext || window.webkitAudioContext;
 const actx = new AC();
 try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
 const master = actx.createGain(); master.connect(actx.destination);
-const musicGain = actx.createGain(); musicGain.gain.value = 0.32; musicGain.connect(master);
+const MUSIC_VOL = 0.22;   // громкость песни (ноты и эффекты громче)
+const musicGain = actx.createGain(); musicGain.gain.value = MUSIC_VOL; musicGain.connect(master);
 const sfxGain = actx.createGain(); sfxGain.connect(master);
 let muted = store.get("muted", false);
 let songBuf = null, songSrc = null, songStart = 0;
@@ -1219,7 +1220,7 @@ function startGame(offset = 0) {
   score = 0; hp = MAX_HP; combo = 0; bestCombo = 0; nPerfect = 0; nGood = 0; nMiss = 0; holdScore = 0;
   chartIdx = 0; plan = []; lastPlanned = null; failed = false;
   items.length = 0; particles.length = 0; floaters.length = 0; rings.length = 0; shards.length = 0; trail.length = 0;
-  fireworks.length = 0; outro = null; player.tilt = 0; musicGain.gain.cancelScheduledValues(actx.currentTime); musicGain.gain.value = 0.32;
+  fireworks.length = 0; outro = null; player.tilt = 0; musicGain.gain.cancelScheduledValues(actx.currentTime); musicGain.gain.value = MUSIC_VOL;
   magnetT = 0; emo = null; holding = null; snowfall = false; judge = null; sustainOff();
   player.x = W / 2 - player.w / 2;
   startSong(offset);
@@ -1299,7 +1300,7 @@ function startOutro(win) {
     musicGain.gain.cancelScheduledValues(t);
     musicGain.gain.setValueAtTime(0.0001, t);
     musicGain.gain.setValueAtTime(0.0001, t + 2.2);
-    musicGain.gain.exponentialRampToValueAtTime(0.32, t + 3.8);
+    musicGain.gain.exponentialRampToValueAtTime(MUSIC_VOL, t + 3.8);
   }
 }
 function updateOutro(dt) {
