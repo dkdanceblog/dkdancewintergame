@@ -38,6 +38,18 @@
       font: inherit; font-size: calc(var(--u) * 10px); cursor: pointer; display: none; padding: 0;
     }
     #pauseBtn.show { display: block; }
+    /* кнопка звука — видна всегда */
+    #soundBtn {
+      position: absolute; z-index: 5; top: calc(var(--u) * 8px); right: calc(var(--u) * 8px);
+      width: calc(var(--u) * 30px); height: calc(var(--u) * 30px); padding: 0; cursor: pointer;
+      border: calc(var(--u) * 2px) solid rgba(255,255,255,.55); background: rgba(10,20,50,.55);
+      border-radius: calc(var(--u) * 6px); display: flex; align-items: center; justify-content: center;
+    }
+    #soundBtn.inGame { right: calc(var(--u) * 44px); }
+    #soundBtn svg { width: 70%; height: 70%; image-rendering: pixelated; }
+    #soundBtn .off { display: none; }
+    #soundBtn.muted .on { display: none; }
+    #soundBtn.muted .off { display: inline; }
 
     .screen {
       position: absolute; inset: 0; display: none; overflow-y: auto;
@@ -133,6 +145,13 @@
 <div id="wrap">
   <canvas id="game"></canvas>
   <button id="pauseBtn" aria-label="Пауза">II</button>
+  <button id="soundBtn" aria-label="Звук вкл/выкл">
+    <svg viewBox="0 0 16 16" shape-rendering="crispEdges" fill="#fff">
+      <path d="M1 6h3v4H1zM4 5h1v6H4zM5 4h1v8H5zM6 3h1v10H6zM7 2h1v12H7z"/>
+      <g class="on"><path d="M10 6h1v4h-1zM12 4h1v8h-1zM14 2h1v12h-1z"/></g>
+      <g class="off" fill="#ff6b81"><path d="M10 5h1v1h-1zM11 6h1v1h-1zM12 7h1v2h-1zM13 9h1v1h-1zM14 10h1v1h-1zM14 5h1v1h-1zM13 6h1v1h-1zM11 9h1v1h-1zM10 10h1v1h-1z"/></g>
+    </svg>
+  </button>
 
   <!-- МЕНЮ -->
   <div class="screen show" id="menu">
@@ -461,6 +480,7 @@ const sfx = {
   lose()  { [76, 73, 69, 64].forEach((m, i) => bell(m, actx.currentTime + i * BEAT * 0.5, 0.2)); }
 };
 function applyMute() {
+  $("soundBtn").classList.toggle("muted", muted);
   master.gain.value = muted ? 0 : 1;
   const t = muted ? "ЗВУК: ВЫКЛ" : "ЗВУК: ВКЛ";
   $("muteBtn1").textContent = t; $("muteBtn2").textContent = t;
@@ -978,7 +998,7 @@ const GRADE_COLOR = { S: "#ffd34d", A: "#7ff0ff", B: "#8dff9a", C: "#d0d6e6", D:
 function drawHUD(pulse, now) {
   for (let i = 0; i < MAX_HP / 2; i++) drawHeart(18 + i * 21, 20, 17, clamp(hp - i * 2, 0, 2));
   ctx.textBaseline = "middle";
-  pixelText(String(score), W - 46, 21, 11, "#fff", "right");
+  pixelText(String(score), W - 84, 21, 11, "#fff", "right");
   // прогресс песни с отметками припевов
   const y = 38, x0 = 10, w = W - 20;
   ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(x0, y, w, 8);
@@ -1042,6 +1062,7 @@ function showScreen(id) {
   for (const s of ["menu", "skinsScr", "pause", "over", "cardScr"]) $(s).classList.toggle("show", s === id);
   canvas.classList.toggle("blurred", id === "pause" || id === "over" || id === "cardScr");
   $("pauseBtn").classList.toggle("show", state === "play");
+  $("soundBtn").classList.toggle("inGame", state === "play");
 }
 
 function buildLegend() {
@@ -1311,6 +1332,7 @@ tap("menuBtn1", toMenu);
 tap("menuBtn2", toMenu);
 tap("muteBtn1", () => { actx.resume(); toggleMute(); });
 tap("muteBtn2", toggleMute);
+tap("soundBtn", () => { actx.resume(); toggleMute(); });
 tap("skinsBtn", () => { buildSkins(); showScreen("skinsScr"); });
 tap("skinsBack", () => showScreen("menu"));
 tap("cardBtn", openCard);
@@ -1332,6 +1354,7 @@ const pointer = { active: false, x: null };
 window.addEventListener("keydown", e => {
   if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
   if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+  if (e.code === "KeyM") toggleMute();
   if (e.code === "Escape" || e.code === "KeyP") { state === "play" ? pauseGame() : resumeGame(); }
   if (e.code === "Space" || e.code === "Enter") {
     e.preventDefault();
