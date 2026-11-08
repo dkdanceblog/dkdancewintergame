@@ -614,7 +614,7 @@ function judgeNote(f, now) {
     const perfect = dx <= L.perfect;
     perfect ? nPerfect++ : nGood++;
     combo++; bestCombo = Math.max(bestCombo, combo);
-    if (combo % 20 === 0 && hp < MAX_HP) { hp++; floatText(pcx(), CATCH_Y - 60, "+♥", "#ff6b81", 9); }
+    if (combo % 20 === 0 && hp < MAX_HP) { hp++; floatText(pcx(), CATCH_Y - 60, "+ЖИЗНЬ", "#ffd640", 8); }
     const mult = (f.gold ? 2 : 1) * (snowfall ? 2 : 1);
     const pts = (perfect ? 300 : 100) * mult;
     score += pts;
@@ -652,7 +652,7 @@ function judgeSpecial(f) {
     } else f.state = "dodged";
   } else if (dx < 34) {
     f.state = "gone";
-    if (f.kind === "heart") { hp = Math.min(MAX_HP, hp + 2); burst(f.x, CATCH_Y, "#ff3b5c", 12); floatText(f.x, CATCH_Y - 10, "+♥", "#ff6b81", 11); sfx.heart(); }
+    if (f.kind === "heart") { hp = Math.min(MAX_HP, hp + 2); burst(f.x, CATCH_Y, "#ffd640", 14); floatText(f.x, CATCH_Y - 10, "+ФРИ!", "#ffd640", 11); sfx.heart(); }
     if (f.kind === "star") { magnetT = 6; burst(f.x, CATCH_Y, "#d47bff", 18, 200); flashText = { text: "МАГИЯ!", t: 0 }; sfx.star(); }
   } else f.state = "dodged";
 }
@@ -924,7 +924,7 @@ function drawItems(now) {
       const glow = f.kind === "ice" ? GLOW.red : f.kind === "heart" ? GLOW.pink : GLOW.purple;
       if (!faded) ctx.drawImage(glow, f.x - 24, f.y - 24, 48, 48);
       ctx.translate(f.x, f.y); ctx.scale(s, s);
-      drawItem(ctx, f.kind, 0, 0, f.kind === "ice" ? 34 : 28);
+      drawItem(ctx, f.kind === "heart" ? "fries" : f.kind, 0, 0, f.kind === "ice" ? 34 : f.kind === "heart" ? 32 : 28);
     }
     ctx.restore();
   }
