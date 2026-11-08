@@ -116,7 +116,12 @@
     }
     .skin canvas { width: 100%; aspect-ratio: 211/297; image-rendering: pixelated; display: block; }
     .skin.on { border-color: #ffd34d; }
-    .skin.locked canvas { filter: brightness(0) opacity(.5); }
+    .skin { position: relative; }
+    .skin.locked canvas { filter: grayscale(.55) brightness(.6) contrast(.9); opacity: .8; }
+    .skin.locked::after {
+      content: "🔒"; position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);
+      font-size: calc(var(--u) * 26px); filter: drop-shadow(0 0 calc(var(--u) * 6px) rgba(0,0,0,.8));
+    }
     .skin .cond { opacity: .7; font-size: calc(var(--u) * 5px); }
     #cardImg { width: 70%; border-radius: calc(var(--u) * 6px); box-shadow: 0 0 20px rgba(0,0,0,.6); }
 
@@ -294,7 +299,7 @@ const SKINS = [
   { id: "base",   name: "КЛАССИКА",     frames: ["fly0", "fly1", "fly2", "fly3"] },
   { id: "sailor", name: "МОРЯК",        frames: ["sailor0", "sailor1", "sailor2", "sailor3"] },
   { id: "jet",    name: "РОЗОВОЕ ВИНО", frames: ["jet0", "jet1", "jet2", "jet3"], cond: "пройди песню" },
-  { id: "drake",  name: "ДРЕЙК",        frames: ["drake0", "drake1", "drake2", "drake3"], cond: "секрет", secret: true }
+  { id: "drake",  name: "ДРЕЙК",        frames: ["drake0", "drake1", "drake2", "drake3"], cond: "пройди песню" }
 ];
 const unlocked = new Set(store.get("unlocked_v2", ["base", "sailor"]));
 unlocked.add("base"); unlocked.add("sailor");
@@ -1239,7 +1244,7 @@ function finish(win) {
     const key = "best_" + levelKey, prev = store.get(key, null);
     if (!demo && (!prev || score > prev.score)) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
     if (!unlocked.has("jet")) { unlocked.add("jet"); badges.push("ОТКРЫТ СКИН: РОЗОВОЕ ВИНО"); }
-    if (!unlocked.has("drake")) { unlocked.add("drake"); badges.push("СЕКРЕТНЫЙ СКИН: ДРЕЙК"); }
+    if (!unlocked.has("drake")) { unlocked.add("drake"); badges.push("ОТКРЫТ СКИН: ДРЕЙК"); }
     store.set("unlocked_v2", [...unlocked]);
   } else {
     sfx.lose();
