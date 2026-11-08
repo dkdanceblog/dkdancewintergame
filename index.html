@@ -292,11 +292,12 @@ let L = LEVELS[levelKey];
 // =====================================================================
 const SKINS = [
   { id: "base",   name: "КЛАССИКА",     frames: ["fly0", "fly1", "fly2", "fly3"] },
-  { id: "mask",   name: "КОТ",          frames: ["mask0", "mask1", "mask2", "mask3"] },
   { id: "sailor", name: "МОРЯК",        frames: ["sailor0", "sailor1", "sailor2", "sailor3"] },
-  { id: "jet",    name: "РОЗОВОЕ ВИНО", frames: ["jet0", "jet1", "jet2", "jet3"] }
+  { id: "jet",    name: "РОЗОВОЕ ВИНО", frames: ["jet0", "jet1", "jet2", "jet3"], cond: "пройди песню" },
+  { id: "drake",  name: "ДРЕЙК",        frames: ["drake0", "drake1", "drake2", "drake3"], cond: "секрет", secret: true }
 ];
-const unlocked = new Set(SKINS.map(s => s.id));   // все скины открыты
+const unlocked = new Set(store.get("unlocked_v2", ["base", "sailor"]));
+unlocked.add("base"); unlocked.add("sailor");
 let skinId = store.get("skin", "base");
 if (!unlocked.has(skinId)) skinId = "base";
 const skin = () => SKINS.find(s => s.id === skinId);
@@ -362,8 +363,8 @@ function buildMoon() {
 logoImg.addEventListener("load", buildMoon);
 if (loaded(logoImg)) buildMoon();
 let moonHover = 0;
-const ATLAS = { cw: 211, ch: 297, cols: 6, idx: {fly0: 0, fly1: 1, fly2: 2, fly3: 3, hurt: 4, victory: 5, mask0: 6, mask1: 7, mask2: 8, mask3: 9, sailor0: 10, sailor1: 11, sailor2: 12, sailor3: 13, jet0: 14, jet1: 15, jet2: 16, jet3: 17} };
-const ITEM = { flake: 0, gold: 1, perfect: 2, ice: 3, heart: 4, star: 5 };
+const ATLAS = { cw: 211, ch: 297, cols: 6, idx: {fly0: 0, fly1: 1, fly2: 2, fly3: 3, hurt: 4, victory: 5, sailor0: 6, sailor1: 7, sailor2: 8, sailor3: 9, jet0: 10, jet1: 11, jet2: 12, jet3: 13, drake0: 14, drake1: 15, drake2: 16, drake3: 17} };
+const ITEM = { flake: 0, gold: 1, perfect: 2, ice: 3, heart: 4, star: 5, fries: 6 };
 
 function drawFrame(g, name, cx, cy, h) {
   if (!loaded(atlas)) return;
@@ -555,7 +556,8 @@ function planAhead(now) {
         plan.push({ kind: "star", t: tm, x: (lastPlanned.x + x) / 2 });
       }
     }
-    plan.push({ kind: "note", t, x, i, midi: CHART_P[i], gold: isGold(i), holdEnd });
+    const gold = isGold(i);
+    plan.push({ kind: "note", t, x, i, midi: CHART_P[i], gold, holdEnd, fries: !gold && !holdEnd && Math.random() < 0.07 });
     lastPlanned = { t: holdEnd || t, x, holdEnd };
   }
   plan.sort((a, b) => a.t - b.t);
@@ -617,6 +619,7 @@ function judgeNote(f, now) {
     catchFx(f.x, CATCH_Y, f.gold ? "#ffd34d" : perfect ? "#9ff0ff" : "#dff3ff", perfect);
     judge = { text: perfect ? "ИДЕАЛЬНО" : "ХОРОШО", color: perfect ? "#7ff0ff" : "#ffffff", t: 0 };
     floatText(f.x, CATCH_Y - 20, "+" + pts, f.gold ? "#ffd34d" : "#fff", 8);
+    if (f.fries) { floatText(f.x, CATCH_Y - 38, "ФРИ!", "#ffd640", 11); burst(f.x, CATCH_Y, "#ffd640", 10, 160); }
     if (combo === 25 || combo === 50 || combo === 100) flashText = { text: "КОМБО " + combo + "!", t: 0 };
     if (f.holdEnd) { holding = f; f.state = "hold"; sustainOn(f.midi); flashText = flashText || null; }
     else f.state = "gone";
@@ -906,8 +909,9 @@ function drawItems(now) {
     if (f.kind === "note") {
       const glow = f.gold ? GLOW.gold : (combo >= 15 || snowfall) ? GLOW.cyan : null;
       if (glow && !faded) ctx.drawImage(glow, f.x - 24, f.y - 24, 48, 48);
-      ctx.translate(f.x, f.y); ctx.rotate(f.rot);
-      drawItem(ctx, f.gold ? "gold" : snowfall ? "perfect" : "flake", 0, 0, f.gold ? 30 : 26);
+      ctx.translate(f.x, f.y);
+      if (f.fries) { ctx.rotate(Math.sin(time * 4 + f.sway) * 0.25); drawItem(ctx, "fries", 0, 0, 30); }
+      else { ctx.rotate(f.rot); drawItem(ctx, f.gold ? "gold" : snowfall ? "perfect" : "flake", 0, 0, f.gold ? 30 : 26); }
     } else {
       const s = 1 + Math.sin(time * 6 + f.sway) * 0.08;
       const glow = f.kind === "ice" ? GLOW.red : f.kind === "heart" ? GLOW.pink : GLOW.purple;
@@ -1101,7 +1105,8 @@ function buildSkins() {
     const cv = document.createElement("canvas"); cv.width = 211; cv.height = 297;
     const g = cv.getContext("2d"); g.imageSmoothingEnabled = false; drawFrame(g, s.frames[0], 105, 148, 297);
     el.appendChild(cv);
-    el.insertAdjacentHTML("beforeend", `<div>${s.name}</div><div class="cond">${s.id === skinId ? "ВЫБРАН" : "выбрать"}</div>`);
+    const nm = !open && s.secret ? "???" : s.name;
+    el.insertAdjacentHTML("beforeend", `<div>${nm}</div><div class="cond">${s.id === skinId ? "ВЫБРАН" : open ? "выбрать" : "🔒 " + s.cond}</div>`);
     el.addEventListener("click", e => { e.stopPropagation(); if (!open) return; skinId = s.id; store.set("skin", skinId); buildSkins(); });
     $("skinGrid").appendChild(el);
   }
@@ -1233,6 +1238,9 @@ function finish(win) {
   if (win) {
     const key = "best_" + levelKey, prev = store.get(key, null);
     if (!demo && (!prev || score > prev.score)) { store.set(key, { score, grade }); if (prev) badges.push("НОВЫЙ РЕКОРД!"); }
+    if (!unlocked.has("jet")) { unlocked.add("jet"); badges.push("ОТКРЫТ СКИН: РОЗОВОЕ ВИНО"); }
+    if (!unlocked.has("drake")) { unlocked.add("drake"); badges.push("СЕКРЕТНЫЙ СКИН: ДРЕЙК"); }
+    store.set("unlocked_v2", [...unlocked]);
   } else {
     sfx.lose();
     stopSong();
