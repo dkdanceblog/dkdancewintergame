@@ -196,11 +196,6 @@
         <button class="b" id="playBtn" disabled>ЗАГРУЗКА…</button>
         <button class="b alt" id="skinsBtn">СКИНЫ</button>
         <button class="b alt" id="muteBtn1">ЗВУК: ВКЛ</button>
-        <!-- ВРЕМЕННО: просмотр финальной заставки -->
-        <div class="row" style="width:72%">
-          <button class="b alt" id="demoEnd5" style="min-width:0;flex:1;border:1px dashed #ffd34d">ФИНАЛ ЧЕРЕЗ 5 СЕК</button>
-          <button class="b alt" id="demoEnd0" style="min-width:0;flex:1;border:1px dashed #ffd34d">СРАЗУ ФИНАЛ</button>
-        </div>
       </div>
       <div class="small">← → / мышь / палец</div>
     </div>
@@ -1470,9 +1465,6 @@ tap("playBtn", () => startGame());
 $("moonLink").addEventListener("pointerenter", () => moonHover = 1);
 $("moonLink").addEventListener("pointerleave", () => moonHover = 0);
 $("moonLink").addEventListener("pointerdown", e => { e.stopPropagation(); moonHover = 1; setTimeout(() => moonHover = 0, 600); });
-// ВРЕМЕННО: кнопки просмотра финала
-tap("demoEnd5", () => startGame(Math.max(0, SONG_END - 5)));
-tap("demoEnd0", () => { startGame(Math.max(0, SONG_END - 1)); setTimeout(() => finish(true), 200); });
 tap("againBtn", () => startGame());
 tap("restartBtn", () => startGame());
 tap("resumeBtn", resumeGame);
