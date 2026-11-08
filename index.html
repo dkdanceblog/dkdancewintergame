@@ -8,7 +8,18 @@
   <meta name="description" content="Лови хлопья в такт песни Федука «Хлопья летят наверх». Пройди песню на 5!">
   <meta property="og:title" content="Хлопья летят наверх — ритм-игра">
   <meta property="og:description" content="Лови хлопья в такт песни. Пройди песню на 5!">
-  <meta property="og:image" content="assets/bg.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dkdanceblog.github.io/dkdancewintergame/">
+  <meta property="og:site_name" content="ДК ДАНС">
+  <meta property="og:image" content="https://dkdanceblog.github.io/dkdancewintergame/assets/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Хлопья летят наверх — пиксельная ритм-игра">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Хлопья летят наверх — ритм-игра">
+  <meta name="twitter:description" content="Лови хлопья в такт песни. Пройди песню на 5!">
+  <meta name="twitter:image" content="https://dkdanceblog.github.io/dkdancewintergame/assets/og.jpg">
+  <link rel="icon" href="assets/logo_dk.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -46,6 +57,14 @@
       border-radius: calc(var(--u) * 6px); display: flex; align-items: center; justify-content: center;
     }
     #soundBtn.inGame { right: calc(var(--u) * 44px); }
+    #fsBtn {
+      position: absolute; z-index: 5; top: calc(var(--u) * 8px); right: calc(var(--u) * 44px);
+      width: calc(var(--u) * 30px); height: calc(var(--u) * 30px); padding: 0; cursor: pointer;
+      border: calc(var(--u) * 2px) solid rgba(255,255,255,.55); background: rgba(10,20,50,.55);
+      border-radius: calc(var(--u) * 6px); display: none; align-items: center; justify-content: center;
+    }
+    #fsBtn.show { display: flex; }
+    #fsBtn svg { width: 64%; height: 64%; }
     #soundBtn svg { width: 70%; height: 70%; image-rendering: pixelated; }
     #soundBtn .off { display: none; }
     #soundBtn.muted .on { display: none; }
@@ -152,6 +171,9 @@
 <div id="wrap">
   <canvas id="game"></canvas>
   <button id="pauseBtn" aria-label="Пауза">II</button>
+  <button id="fsBtn" aria-label="На весь экран">
+    <svg viewBox="0 0 16 16" shape-rendering="crispEdges" fill="#fff"><path d="M1 1h5v2H3v3H1zM10 1h5v5h-2V3h-3zM1 10h2v3h3v2H1zM13 10h2v5h-5v-2h3z"/></svg>
+  </button>
   <button id="soundBtn" aria-label="Звук вкл/выкл">
     <svg viewBox="0 0 16 16" shape-rendering="crispEdges" fill="#fff">
       <path d="M1 6h3v4H1zM4 5h1v6H4zM5 4h1v8H5zM6 3h1v10H6zM7 2h1v12H7z"/>
@@ -534,7 +556,7 @@ function planAhead(now) {
   while (chartIdx < NOTE_T.length && NOTE_T[chartIdx] < horizon) {
     const i = chartIdx++;
     const t = NOTE_T[i];
-    if (t < 1.0) continue;
+    if (t < 3.0) continue;               // первые секунды — время освоиться
     const gap = inChorus(t) ? L.chorusGap : L.gap;
     if (lastPlanned && t - lastPlanned.t < gap - 0.005) continue;
     let x = noteX(CHART_P[i], t);
@@ -607,6 +629,48 @@ function damage(n) {
   if (hp <= 0) finish(false);
 }
 
+// =====================================================================
+//  ОБУЧЕНИЕ: короткие подсказки, каждая показывается один раз в жизни
+// =====================================================================
+const TIPS_SEEN = new Set(store.get("tips", []));
+const IS_TOUCH = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+let tip = null; const tipQueue = [];
+function showTip(key, text, dur = 2.6, urgent = false) {
+  if (TIPS_SEEN.has(key) || demo || (tip && tip.key === key) || tipQueue.some(q => q.key === key)) return;
+  const t = { key, text, dur, t: 0 };
+  if (urgent) { if (tip) tipQueue.unshift(tip); tip = t; } else tipQueue.push(t);
+}
+function updateTips(dt, now) {
+  if (state !== "play") return;
+  // события, которые запускают подсказки
+  for (const f of items) {
+    if (f.state !== "fly") continue;
+    const left = f.t - now;
+    if (f.kind === "note" && left < 1.3) showTip("under", "ВСТАНЬ ПОД СНЕЖИНКУ");
+    if (f.kind === "note" && f.holdEnd && left < 1.4) showTip("hold", "ДЕРЖИСЬ ПОД ЛЕНТОЙ");
+    if (f.kind === "ice" && left < 1.5) showTip("ice", "СОСУЛЬКУ НЕ ЛОВИ!", 2.2, true);
+    if (f.kind === "heart" && left < 1.5) showTip("fries", "ФРИ = +ЖИЗНЬ", 2.2);
+    if (f.kind === "star" && left < 1.5) showTip("star", "МАГИЯ ПРИТЯГИВАЕТ НОТЫ", 2.2);
+  }
+  if (!tip && tipQueue.length) tip = tipQueue.shift();
+  if (tip) {
+    tip.t += dt;
+    if (tip.t >= tip.dur) { TIPS_SEEN.add(tip.key); store.set("tips", [...TIPS_SEEN]); tip = null; }
+  }
+}
+function drawTip() {
+  if (!tip || state !== "play") return;
+  const k = tip.t, a = Math.min(1, k * 5, (tip.dur - k) * 4);
+  ctx.save(); ctx.globalAlpha = Math.max(0, a);
+  ctx.font = '9px "Press Start 2P", monospace';
+  const w = ctx.measureText(tip.text).width + 28, y = H * 0.64 + Math.sin(time * 4) * 2;
+  ctx.fillStyle = "rgba(8,14,40,0.82)"; ctx.fillRect(W / 2 - w / 2, y - 15, w, 30);
+  ctx.strokeStyle = tip.key === "ice" ? "#ff6b81" : "#ffd34d"; ctx.lineWidth = 2; ctx.strokeRect(W / 2 - w / 2, y - 15, w, 30);
+  ctx.textBaseline = "middle";
+  pixelText(tip.text, W / 2, y + 1, 9, "#ffffff", "center");
+  ctx.restore();
+}
+
 function judgeNote(f, now) {
   const dx = Math.abs(f.x - pcx());
   const when = songStart + f.t;
@@ -628,6 +692,7 @@ function judgeNote(f, now) {
     floatText(f.x, CATCH_Y - 20, "+" + pts, f.gold ? "#ffd34d" : "#fff", 8);
     if (f.fries) { floatText(f.x, CATCH_Y - 38, "ФРИ!", "#ffd640", 11); burst(f.x, CATCH_Y, "#ffd640", 10, 160); }
     if (combo === 25 || combo === 50 || combo === 100) flashText = { text: "КОМБО " + combo + "!", t: 0 };
+    showTip("perfect", "В ЦЕНТР — «ИДЕАЛЬНО»", 2.4);
     if (f.holdEnd) { holding = f; f.state = "hold"; sustainOn(f.midi); flashText = flashText || null; }
     else f.state = "gone";
   } else {
@@ -689,6 +754,7 @@ function update(dt) {
   snowfall = sf;
 
   planAhead(now);
+  updateTips(dt, now);
   if (magnetT > 0) magnetT -= dt;
   if (emoT > 0) { emoT -= dt; if (emoT <= 0) emo = null; }
   const cx = pcx();
@@ -1065,6 +1131,7 @@ function render() {
   ctx.restore();
   drawHurt();
   if (state === "play" || state === "paused") drawHUD(pulse, now);
+  drawTip();
 }
 
 // =====================================================================
@@ -1075,6 +1142,7 @@ function showScreen(id) {
   canvas.classList.toggle("blurred", id === "pause" || id === "over" || id === "cardScr");
   $("pauseBtn").classList.toggle("show", state === "play");
   $("soundBtn").classList.toggle("inGame", state === "play");
+  $("fsBtn").classList.toggle("show", FS_OK && state !== "play" && !isFullscreen());
 }
 
 function buildLegend() {
@@ -1123,6 +1191,18 @@ function buildSkins() {
 }
 
 let demo = false;
+// на весь экран (на iPhone браузер не даёт — там кнопку не показываем)
+const FS_OK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+const isFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+// экран не гаснет, пока идёт игра
+let wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && !wakeLock && navigator.wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => wakeLock = null); }
+    if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch (e) {}
+}
+$("fsBtn").classList.toggle("show", FS_OK && !isFullscreen());
 function startGame(offset = 0) {
   demo = offset > 0;
   actx.resume();
@@ -1135,7 +1215,10 @@ function startGame(offset = 0) {
   startSong(offset);
   if (offset > 0) { chartIdx = NOTE_T.findIndex(t => t > offset + 0.4); if (chartIdx < 0) chartIdx = NOTE_T.length; }
   state = "play";
+  keepAwake(true);
   flashText = { text: "ПОЕХАЛИ!", t: 0 };
+  tip = null; tipQueue.length = 0;
+  showTip("move", IS_TOUCH ? "ВЕДИ ПАЛЬЦЕМ ← →" : "МЫШЬ ИЛИ СТРЕЛКИ ← →", 3);
   showScreen(null);
 }
 
@@ -1244,6 +1327,7 @@ function outroOffset() {               // смещение Федука по в�
   return Math.pow(t * 1.6, 2) * 60;
 }
 function endOutro() {
+  keepAwake(false);
   if (!outro) return;
   outro = null; state = "over"; fireworks.length = 0;
   showScreen("over");
@@ -1321,7 +1405,7 @@ function finish(win) {
 
 function pauseGame() { if (state !== "play") return; state = "paused"; actx.suspend(); showScreen("pause"); }
 function resumeGame() { if (state !== "paused") return; actx.resume(); state = "play"; showScreen(null); }
-function toMenu() { stopSong(); sustainOff(); actx.resume(); state = "menu"; items.length = 0; showScreen("menu"); }
+function toMenu() { keepAwake(false); stopSong(); sustainOff(); actx.resume(); state = "menu"; items.length = 0; showScreen("menu"); }
 
 // =====================================================================
 //  КАРТОЧКА ДЛЯ СТОРИС (1080×1920)
@@ -1399,6 +1483,13 @@ tap("menuBtn2", toMenu);
 tap("muteBtn1", () => { actx.resume(); toggleMute(); });
 tap("muteBtn2", toggleMute);
 tap("soundBtn", () => { actx.resume(); toggleMute(); });
+tap("fsBtn", () => {
+  const el = document.documentElement;
+  (el.requestFullscreen || el.webkitRequestFullscreen || (() => {})).call(el);
+});
+["fullscreenchange", "webkitfullscreenchange"].forEach(ev => document.addEventListener(ev, () => {
+  $("fsBtn").classList.toggle("show", FS_OK && state !== "play" && !isFullscreen()); setTimeout(resize, 100);
+}));
 tap("skinsBtn", () => { buildSkins(); showScreen("skinsScr"); });
 tap("skinsBack", () => showScreen("menu"));
 tap("cardBtn", openCard);
@@ -1410,6 +1501,7 @@ atlas.addEventListener("load", () => { if ($("skinsScr").classList.contains("sho
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) { if (state === "play") pauseGame(); else actx.suspend(); }
   else if (state === "over" || state === "menu") actx.resume();
+  if (!document.hidden && (state === "play" || state === "paused")) keepAwake(true);
 });
 
 // =====================================================================
